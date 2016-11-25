@@ -45,7 +45,42 @@ Este dataset contiene datos recogidos de la aplicacion *PokemonGo*, esta aplicac
 * **gymIn100m** - **pokestopIn5000m**: son atributos booleanos que indican si hay un gimnasio o una pokestop a 100m/200m/.../5000m de la localización donde se avistó el pokemon.
 * **cooc1** - **cooc151**: booleano que indica si el avistamiento de un pokemon coincidió con el de otro (de una clase entre 1 y 151) en un radio de 100m y en un rango de tiempo de 24 horas.
 * **class** dice qué pokemon se trata, y en la página del dataset indica que es el atributo a predecir.
-
 ## Preprocesamiento
 
 En primer lugar vamos a ver cuántas muestras y atributos tiene nuestro dataset. Además veremos si las clases están balanceadas, para echo emplearemos el comando `xtab`:
+
+```{r}
+ds <- read.csv("/mnt/Datos/Master/TID/proyectoTID/300k.csv")
+```
+
+```{r}
+cat("Hay un total de " , nrow(ds) , " muestras.\n")
+cat("Cada muestra tiene " , ncol(ds) , " atributos.\n")
+```
+
+Con lo cual como vemos el número de muestras y de atributos es muy elevado. Además el número de clases a clasificar es muy elevado por lo tanto lo que vamos a hacer es intentar clasificar los pokemon según su tipo, así que vamos a añadir dicha columna al dataset:
+
+Planta = P
+Agua = A
+Fuego = F
+Bicho = B
+Fantasma = G
+Lucha = L
+Normal = N
+Electrico = L
+Psíquico = S
+Venemo = V
+Hielo = H
+Dragon = D
+Tierra = T
+Roca = R
+
+
+```{r}
+tipos = c{'P','P',P,F,F,F,A,A,A,B,B,B,B,B,B}
+```
+```{r}
+T<-xtabs(~ class, ds)
+getwd()
+```
+
