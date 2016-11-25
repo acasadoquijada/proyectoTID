@@ -36,4 +36,12 @@ Este dataset contiene datos recogidos de la aplicacion *PokemonGo*, esta aplicac
 * *windBearing*: dirección del viento entre 0 y 360 grados.
 * *pressure*: presión en el momento del avistamiento en bares.
 * *weatherIcon*: el tiempo atmosférico en el momento del avistamiento clasificado según un sistema de categorías más simple que el empleado en *weather* (fog, clear-night, partly-cloudy-night, partly-cloudy-day, cloudy, clear-day, rain, wind).
-* *
+* *sunriseMinutesMidnight*: tiempo de la aparición relativo al amanecer.
+* *sunsetMinutesBefore*: tiempo de la aparición relativo a la puesta de sol.
+* *population density*: densidad de población por $km^2$ en un avistamiento.
+* *urbal-rural*: cómo de urbana es la localización donde apareció el pokemon relativa a la *population density* (<200 rural, >= 200 && < 400 midUrban, >= 400 && < 800 subUrban, >800 urban).
+* *gymDistanceKm*: distancia al gimnasio más cercano al punto de aparición del pokemon.
+* *pokestopDistanceKm*: distancia a la pokestop más cercana al punto de aparicion del pokemon.
+* *gymIn100m* - *pokestopIn5000m*: son atributos booleanos que indican si hay un gimnasio o una pokestop a 100m/200m/.../5000m de la localización donde se avistó el pokemon.
+* *cooc1* - *cooc151*: booleano que indica si el avistamiento de un pokemon coincidió con el de otro (de una clase entre 1 y 151) en un radio de 100m y en un rango de tiempo de 24 horas.
+* *class* dice qué pokemon se trata, y en la página del dataset indica que es el atributo a predecir.
