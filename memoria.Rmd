@@ -45,3 +45,7 @@ Este dataset contiene datos recogidos de la aplicacion *PokemonGo*, esta aplicac
 * **gymIn100m** - **pokestopIn5000m**: son atributos booleanos que indican si hay un gimnasio o una pokestop a 100m/200m/.../5000m de la localización donde se avistó el pokemon.
 * **cooc1** - **cooc151**: booleano que indica si el avistamiento de un pokemon coincidió con el de otro (de una clase entre 1 y 151) en un radio de 100m y en un rango de tiempo de 24 horas.
 * **class** dice qué pokemon se trata, y en la página del dataset indica que es el atributo a predecir.
+
+## Preprocesamiento
+
+En primer lugar vamos a ver cuántas muestras y atributos tiene nuestro dataset. Además veremos si las clases están balanceadas, para echo emplearemos el comando `xtab`:
