@@ -50,7 +50,8 @@ Este dataset contiene datos recogidos de la aplicacion *PokemonGo*, esta aplicac
 En primer lugar vamos a ver cuántas muestras y atributos tiene nuestro dataset. Además veremos si las clases están balanceadas, para echo emplearemos el comando `xtab`:
 
 ```{r}
-ds <- read.csv("/mnt/Datos/Master/TID/proyectoTID/300k.csv")
+#ds <- read.csv("/mnt/Datos/Master/TID/proyectoTID/300k.csv")
+ds <- read.csv("300k.csv")
 ```
 
 ```{r}
@@ -58,29 +59,54 @@ cat("Hay un total de " , nrow(ds) , " muestras.\n")
 cat("Cada muestra tiene " , ncol(ds) , " atributos.\n")
 ```
 
-Con lo cual como vemos el número de muestras y de atributos es muy elevado. Además el número de clases a clasificar es muy elevado por lo tanto lo que vamos a hacer es intentar clasificar los pokemon según su tipo, así que vamos a añadir dicha columna al dataset:
-
-Planta = P
-Agua = A
-Fuego = F
-Bicho = B
-Fantasma = G
-Lucha = L
-Normal = N
-Electrico = L
-Psíquico = S
-Venemo = V
-Hielo = H
-Dragon = D
-Tierra = T
-Roca = R
-
+Con lo cual como vemos el número de muestras y de atributos es muy elevado. Además el número de clases a clasificar es muy elevado por lo tanto lo que vamos a hacer es intentar clasificar los pokemon según su tipo, así que vamos a añadir dicha columna al dataset. Los tipos considerados son aquellos que se establecieron en la primera generación de Pokemon y se recogen por medio de las siguientes variables que almacenan una cadena indicando el tipo; estas variables se han añadido por comodidad a la hora de generar el vector de tipos que crearemos a continuación:
 
 ```{r}
-tipos = c{'P','P',P,F,F,F,A,A,A,B,B,B,B,B,B}
+P = "planta"
+A = "agua"
+F = "fuego"
+B = "bicho"
+G = "fantasma"
+L = "lucha"
+N = "normal"
+E = "electrico"
+S = "psiquico"
+V = "veneno"
+H = "hielo"
+D = "dragon"
+T = "tierra"
+R = "roca"
 ```
+
+
+A continuación formamos un array considerando el tipo primario de cada pokemon de la primera generación, dando lugar a un array de 151 elementos. Pese que en la app hay algunas especies de pokemon que no aparecen por motivos de indexación, ya que las muestras dan la clase según el número original del pokemon, introducimos el tipo de los 151 pokemon:
+
 ```{r}
-T<-xtabs(~ class, ds)
-getwd()
+tipos = c(P,P,P,F,F,F,A,A,A,B,B,B,
+  B,B,B,N,N,N,N,N,N,N,V,V,
+  E,E,T,T,V,V,V,V,V,V,N,N,
+  F,F,N,N,V,V,P,P,P,B,B,B,
+  B,T,T,N,N,A,A,L,L,F,F,A,
+  A,A,S,S,S,L,L,L,P,P,P,A,
+  A,R,R,R,F,F,A,A,E,E,N,N,
+  N,A,A,V,V,A,A,G,F,F,R,S,
+  S,A,A,E,E,P,P,T,T,L,L,N,
+  V,V,T,T,N,P,N,A,A,A,A,A,
+  A,S,B,H,E,F,B,N,A,A,A,N,
+  N,A,E,F,N,R,R,R,R,R,N,H,
+  E,F,D,D,D,S,S)
+```
+
+Ahora vamos a proceder a añadir la columna de tipos al dataset que hemos cargado:
+
+```{r}
+ds["tipo"] <- tipos[ds$class]
+```
+
+Veamos entonces cómo se distribuyen las muestran que tenemos según el tipo de pokemon avistado:
+
+```{r}
+T <- xtabs(~ tipo, ds)
+print(T)
 ```
 
