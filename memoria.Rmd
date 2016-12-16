@@ -50,7 +50,6 @@ Este dataset contiene datos recogidos de la aplicacion *PokemonGo*, esta aplicac
 En primer lugar vamos a ver cuántas muestras y atributos tiene nuestro dataset. Además veremos si las clases están balanceadas, para echo emplearemos el comando `xtab`:
 
 ```{r}
-#ds <- read.csv("/mnt/Datos/Master/TID/proyectoTID/300k.csv")
 ds <- read.csv("300k.csv")
 ```
 
@@ -107,6 +106,10 @@ Veamos entonces cómo se distribuyen las muestran que tenemos según el tipo de 
 
 ```{r}
 T <- xtabs(~ tipo, ds)
+etiquetas = c("agua", "bicho", "dragon", "electrico", "fantasma", "fuego", "hielo", "lucha", "normal", "planta", "psiquico", "roca", "tierra", "veneno")
 print(T)
+colores = rev(c("darkorchid", "burlywood3","darkgoldenrod4", "pink", "forestgreen", "darkgray", "brown4", "cyan2", "red", "midnightblue", "yellow", "slateblue4", "yellowgreen", "dodgerblue"))
+barplot(T, main = "Distribución de tipos", horiz = TRUE, ylab= "Tipo", col = colores, legend.text = etiquetas, args.legend=list(bty = "n", x = "right"))
 ```
 
+Como podemos ver una vez que hemos agrupado las muestras por el tipo de Pokemon vemos que las clases están tremendamente desequilibradas. Mientras que hay muchísimos avistamientos de Pokemon de tipo normal, las clases hielo, dragón, fastasma, eléctrico o roca resultan marginales. Con lo cual en primer lugar hemos de realizar un equilibrado de estas clases.
