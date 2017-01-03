@@ -6,6 +6,7 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(arules)
 ```
 
 ## Introducción
@@ -18,6 +19,7 @@ Este dataset contiene datos recogidos de la aplicacion *PokemonGo*, esta aplicac
 * **latitude**: latitud de la posición donde se ha localizado el pokemon.
 * **longitude**: longitud de la posición donde se ha localizado el pokemon.
 * **appearedLocalTime**: momento exacto en el que se encontró el pokemon, con el formato yyyy-mm-ddThh-mm-ss.ms.
+* **X_id**: la ficha del dataset no proporciona información sobre qué representa este dato, de hecho hemos [preguntado en la propia web](https://www.kaggle.com/semioniy/predictemall/discussion/24061#144095) pero no hemos obtenido respuesta. No obstante viendo el dataset no parece ser más que una código identificador de la muestra. 
 * **cellId 90-5850m**: la localización goegráfica del pokemon proyectada en una celda S2.
 * **appearedTimeOfDay**: momento del día en el que apareció el pokemon (night, evening, afternoon, morning).
 * **appearedHour**: hora local de una observación del pokemon.
@@ -42,7 +44,7 @@ Este dataset contiene datos recogidos de la aplicacion *PokemonGo*, esta aplicac
 * **urbal-rural**: cómo de urbana es la localización donde apareció el pokemon relativa a la *population density* (<200 rural, >= 200 && < 400 midUrban, >= 400 && < 800 subUrban, >800 urban).
 * **gymDistanceKm**: distancia al gimnasio más cercano al punto de aparición del pokemon.
 * **pokestopDistanceKm**: distancia a la pokestop más cercana al punto de aparicion del pokemon.
-* **gymIn100m** - **pokestopIn5000m**: son atributos booleanos que indican si hay un gimnasio o una pokestop a 100m/200m/.../5000m de la localización donde se avistó el pokemon.
+* **gymIn100m** - **pokestopIn5000m**: son atributos booleanos que indican si hay un gimnasio o una pokestop a 100m/250m/500m/1000m/2500m/5000m de la localización donde se avistó el pokemon.
 * **cooc1** - **cooc151**: booleano que indica si el avistamiento de un pokemon coincidió con el de otro (de una clase entre 1 y 151) en un radio de 100m y en un rango de tiempo de 24 horas.
 * **class** dice qué pokemon se trata, y en la página del dataset indica que es el atributo a predecir.
 ## Preprocesamiento
@@ -57,6 +59,31 @@ ds <- read.csv("300k.csv")
 cat("Hay un total de " , nrow(ds) , " muestras.\n")
 cat("Cada muestra tiene " , ncol(ds) , " atributos.\n")
 ```
+
+Vamos a proceder a eliminar el atributo **appearedLocalTime**, la eliminamos en primer lugar por la dificultad de trabajar con este dado, el cual podríamos transformar en una serie de variables que desglosasen su contenido, no obstante tenemos otros atributos que ya lo hacen, como son la hora, el día, el mes y el año del avistamiento. Por otro lado vamos a eleminar también el atributo **X_id** que como ya hemos comentado no sabemos qué representa. Además teniendo en cuenta que la aplicación se lanzó el día 6 de julio de 2016, es claro que no el año del avistamiento no aporta ninguna información, con lo que también eleminaremos el atributo **appearedYear**.
+
+```{r}
+ds <- subset(ds, select = -c(appearedLocalTime, X_id, appearedYear))
+```
+
+Viendo el dataset nos hemos dado cuenta de que para los atributos booleanos que nos indican si hay un gimnasio o una pokeparada a una distancia determinada del lugar de avistamiento del pokemon, siguen un patrón, y es que, al parecer, estas variables lo que indican es si hay un gimnasio o una pokeparada **en un radio** de una determinada longitud, con lo cual en cuanto el atributo que indica si hay un gimansio a una distancia es cierto, el resto de atributos que indican si hay un gimnasio a una distancia mayor también lo son. Lo mismo sucede con las paradas. Entonces una vez hayamos confirmado esto, como la existencia de un gimnasio o una pokeparada en un radio determiando implica la existencia en un radio mayor, podremos eliminar, sin pérdida de información, todos estos atributos y quedarnos únicamente con los atributos **gymDistanceKm** y **pokestopDistanceKm**, que resumirían la información contenida en los otros atributos. Para tratar de comprobar esto vamos a hacer uso de las reglas de asociación con el paquete *arules*:
+
+```{r}
+booleansGyms = subset(ds, select = c(gymIn100m, gymIn250m, gymIn500m, gymIn1000m, gymIn2500m, gymIn5000m))
+reglas = apriori(booleansGyms, parameter = list(support = 0.0, confidence = 0.8, minlen = 2, maxlen = 2))
+inspect(subset(reglas, confidence == 1.0))
+
+booleansPokestops = subset(ds, select = c(pokestopIn100m, pokestopIn250m, pokestopIn500m, pokestopIn1000m, pokestopIn2500m, pokestopIn5000m))
+reglas = apriori(booleansPokestops, parameter = list(support = 0.0, confidence = 0.8, minlen = 2, maxlen = 2))
+inspect(subset(reglas, confidence == 1.0))
+```
+
+Hemos obtenido las distintas reglas de asociación sin atender al soporte ya que no estamos interesados en saber cuantas veces se da una correspondencia entre dos hechos (el soporte de dicha regla), lo que queremos saber es que cuando se da un hecho, esto implica que se den los que suponemos que deberian darse (la confianza de las reglas encontradas). Por tanto, como podemos ver, las reglas de asociación encontradas prueban nuestras suposiciones. Dado esto, procedemos a elminar los atributos. Dado que la confianza es del 100%, no afecta haber usado el conjunto entero.
+
+```{r}
+ds <- subset(ds, select = -c(gymIn100m, gymIn250m, gymIn500m, gymIn1000m, gymIn2500m, gymIn5000m, pokestopIn100m, pokestopIn250m, pokestopIn500m, pokestopIn1000m, pokestopIn2500m, pokestopIn5000m))
+```
+
 
 Con lo cual como vemos el número de muestras y de atributos es muy elevado. Además el número de clases a clasificar es muy elevado por lo tanto lo que vamos a hacer es intentar clasificar los pokemon según su tipo, así que vamos a añadir dicha columna al dataset. Los tipos considerados son aquellos que se establecieron en la primera generación de Pokemon y se recogen por medio de las siguientes variables que almacenan una cadena indicando el tipo; estas variables se han añadido por comodidad a la hora de generar el vector de tipos que crearemos a continuación:
 
