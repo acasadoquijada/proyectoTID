@@ -7,6 +7,7 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(arules)
+library(plyr)
 ```
 
 ## Introducción
@@ -89,8 +90,35 @@ Por lo comentando arriba se va a optar a eliminar los atributos correspondientes
 
 ```{r}
 ds <- subset(ds, select = -c(cellId_90m, cellId_180m, cellId_370m, cellId_730m, cellId_1460m, cellId_2920m, cellId_5850m))
-
 ```
+
+Por otro lado al explorar el dataset observamos que en el atributo **appearedDayOfWeek** se tomaba el valor *dummy_day*, y al consultar los valores que toma este atributo a lo largo del dataset vimos que no aparecia el lunes cuando el resto de los dias de la semana si que aparecen, con lo cual procedemos a revisar si este valor del atributo se corresponde con el lunes o es simplemente un valor perdido:
+
+```{r}
+unique(ds$appearedDayOfWeek)
+unique(subset(ds, appearedDayOfWeek == "dummy_day")$appearedMonth)
+unique(subset(ds, appearedDayOfWeek == "dummy_day")$appearedDay)
+```
+
+Como podemos observar el único día en el que se registran observaciones en las que el atributo toma el valor *dummy_day* es el 8 de agosto que efectivamente fue un lunes. Además mientras se comprobaba este hecho hemos observado que todas las observaciones se realizaron en agosto y que además fue durante una semana de agosto, con lo cual el atributo **appearedMonth** no aporta ninguna información y además los atributos **appearedDayOfWeek** y **appearedDay** aportan la misma información, ya que al tomarse las muestras durante una sola semana hay una correspondencia biyectiva entre los valores de ambos atributos. Y como a priori no consideramos que la distancia entre días sea significativa, vamos a optar por quedarnos con el atributo categórico:
+
+```{r}
+#le damos un categoría más singnificativa que dummy_day al atributo
+levels(ds$appearedDayOfWeek)[1] <- "Monday"
+
+#vemos los meses y días en los que se tomaron las muestras
+unique(ds$appearedMonth)
+unique(ds$appearedDay)
+
+#eliminamos las variables innecesarias
+ds <- subset(ds, select = -c(appearedMonth, appearedDay))
+```
+
+```{r}
+nrow(ds[ds$appearedDayOfWeek == "Monday", ])
+levels(ds$appearedDayOfWeek)
+```
+
 Con lo cual como vemos el número de muestras y de atributos es muy elevado. Además el número de clases a clasificar es muy elevado por lo tanto lo que vamos a hacer es intentar clasificar los pokemon según su tipo, así que vamos a añadir dicha columna al dataset. Los tipos considerados son aquellos que se establecieron en la primera generación de Pokemon y se recogen por medio de las siguientes variables que almacenan una cadena indicando el tipo; estas variables se han añadido por comodidad a la hora de generar el vector de tipos que crearemos a continuación:
 
 ```{r}
