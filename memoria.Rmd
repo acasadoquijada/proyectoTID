@@ -174,3 +174,16 @@ barplot(T, main = "Distribución de tipos", horiz = TRUE, ylab= "Tipo", col = co
 ```
 
 Como podemos ver una vez que hemos agrupado las muestras por el tipo de Pokemon vemos que las clases están tremendamente desequilibradas. Mientras que hay muchísimos avistamientos de Pokemon de tipo normal, las clases hielo, dragón, fastasma, eléctrico o roca resultan marginales. Con lo cual en primer lugar hemos de realizar un equilibrado de estas clases.
+
+```{r}
+ds$appearedTimeOfDay <- factor(ds$appearedTimeOfDay, levels = c("morning", "afternoon", "evening", "night"))
+tabla <- table(ds$appearedTimeOfDay, ds$tipo)
+tabla1 <- table(ds[! ds$tipo %in% c("normal", "bicho", "agua", "dragon", "hielo", "veneno"), c("appearedTimeOfDay", "tipo")])
+tabla2 <- table(ds[ds$tipo %in% c("normal", "bicho", "agua", "veneno"), c("appearedTimeOfDay", "tipo")])
+tabla3 <- table(ds[ds$tipo %in% c("dragon","hielo"), c("appearedTimeOfDay", "tipo")])
+barplot(tabla1, legend = levels(ds$appearedTimeOfDay), las = 2, col = c("darkgoldenrod2", "chocolate", "cyan4", "blue4"))
+barplot(tabla2, legend = levels(ds$appearedTimeOfDay), las = 2, col = c("darkgoldenrod2", "chocolate", "cyan4", "blue4"))
+barplot(tabla3, legend = levels(ds$appearedTimeOfDay), las = 2, col = c("darkgoldenrod2", "chocolate", "cyan4", "blue4"))
+```
+
+Aquí podemos apreciar que para cualquier tipo de pokemon la mayoría de los avistamientos se producen durante la noche. Creíamos que ibamos a apreciar una tendencia en la que los pokemon de tipo fantasma fuesen los que presentaban este comportamiento de una forma más acusada, sin embargo todos los tipos siguen este patrón de aparición.
