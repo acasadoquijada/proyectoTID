@@ -66,7 +66,7 @@ Vamos a proceder a eliminar el atributo **appearedLocalTime**, la eliminamos en 
 ds <- subset(ds, select = -c(appearedLocalTime, X_id, appearedYear))
 ```
 
-Viendo el dataset nos hemos dado cuenta de que para los atributos booleanos que nos indican si hay un gimnasio o una pokeparada a una distancia determinada del lugar de avistamiento del pokemon, siguen un patrón, y es que, al parecer, estas variables lo que indican es si hay un gimnasio o una pokeparada **en un radio** de una determinada longitud, con lo cual en cuanto el atributo que indica si hay un gimansio a una distancia es cierto, el resto de atributos que indican si hay un gimnasio a una distancia mayor también lo son. Lo mismo sucede con las paradas. Entonces una vez hayamos confirmado esto, como la existencia de un gimnasio o una pokeparada en un radio determiando implica la existencia en un radio mayor, podremos eliminar, sin pérdida de información, todos estos atributos y quedarnos únicamente con los atributos **gymDistanceKm** y **pokestopDistanceKm**, que resumirían la información contenida en los otros atributos. Para tratar de comprobar esto vamos a hacer uso de las reglas de asociación con el paquete *arules*:
+Viendo el dataset nos hemos dado cuenta de que para los atributos booleanos que nos indican si hay un gimnasio o una pokeparada a una distancia determinada del lugar de avistamiento del pokemon, siguen un patrón, y es que, al parecer, estas variables lo que indican es si hay un gimnasio o una pokeparada **en un radio** de una determinada longitud, con lo cual en cuanto el atributo que indica si hay un gimansio a una distancia es cierto, el resto de atributos que indican si hay un gimnasio a una distancia mayor también lo son. Lo mismo sucede con las paradas. Entonces una vez hayamos confirmado esto, como la existencia de un gimnasio o una pokeparada en un radio determinado implica la existencia en un radio mayor, podremos eliminar, sin pérdida de información, todos estos atributos y quedarnos únicamente con los atributos **gymDistanceKm** y **pokestopDistanceKm**, que resumirían la información contenida en los otros atributos. Para tratar de comprobar esto vamos a hacer uso de las reglas de asociación con el paquete *arules*:
 
 ```{r}
 booleansGyms = subset(ds, select = c(gymIn100m, gymIn250m, gymIn500m, gymIn1000m, gymIn2500m, gymIn5000m))
@@ -83,8 +83,14 @@ Hemos obtenido las distintas reglas de asociación sin atender al soporte ya que
 ```{r}
 ds <- subset(ds, select = -c(gymIn100m, gymIn250m, gymIn500m, gymIn1000m, gymIn2500m, gymIn5000m, pokestopIn100m, pokestopIn250m, pokestopIn500m, pokestopIn1000m, pokestopIn2500m, pokestopIn5000m))
 ```
+Este dataset nos proporciona una serie de atributos para la localización del pokemon. Los primeros que nos encontramos son **latitude** y **longitude**, se tratan de coordenadas geográficas. Por otro lado aparecen **cellId_90m**, **cellId_180m**, **cellId_370m**, **cellId_730m**, **cellId_1460m**, **cellId_2920m**, **cellId_5850m**. Estos indican la posición geográfica usando celdas s2. Estas celdas se clasifican en niveles atendiendo a su área, desde 0 (menor área) a 30 (mayor área). Se obtienen según longitud y latitud, por lo que son la misma información representada de distinta manera. Además para métodos que dependen de una distancia como el KNN tendríamos que investigar la distancia entre las distintas celdas a través de su ID, lo que supondría una carga de trabajo extra e innecesaria. Se puede consultar más información sobre las celdas s2 en el siguiente [enlace](http://blog.christianperone.com/2015/08/googles-s2-geometry-on-the-sphere-cells-and-hilbert-curve/)
 
+Por lo comentando arriba se va a optar a eliminar los atributos correspondientes a las celdas, dejando los atributos **latitude** y **longitude** como los únicos para determinar la posición.
 
+```{r}
+ds <- subset(ds, select = -c(cellId_90m, cellId_180m, cellId_370m, cellId_730m, cellId_1460m, cellId_2920m, cellId_5850m))
+
+```
 Con lo cual como vemos el número de muestras y de atributos es muy elevado. Además el número de clases a clasificar es muy elevado por lo tanto lo que vamos a hacer es intentar clasificar los pokemon según su tipo, así que vamos a añadir dicha columna al dataset. Los tipos considerados son aquellos que se establecieron en la primera generación de Pokemon y se recogen por medio de las siguientes variables que almacenan una cadena indicando el tipo; estas variables se han añadido por comodidad a la hora de generar el vector de tipos que crearemos a continuación:
 
 ```{r}
