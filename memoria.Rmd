@@ -8,6 +8,7 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 library(arules)
 library(plyr)
+library(ggplot2)
 ```
 
 ## Introducción
@@ -187,3 +188,19 @@ barplot(tabla3, legend = levels(ds$appearedTimeOfDay), las = 2, col = c("darkgol
 ```
 
 Aquí podemos apreciar que para cualquier tipo de pokemon la mayoría de los avistamientos se producen durante la noche. Creíamos que ibamos a apreciar una tendencia en la que los pokemon de tipo fantasma fuesen los que presentaban este comportamiento de una forma más acusada, sin embargo todos los tipos siguen este patrón de aparición.
+
+Vamos a representar los datos contenidos en nuestro dataset de forma geográfica:
+
+```{r}
+world_map <- map_data("world")
+spain <- subset(world_map, world_map$region=="Spain")
+base_world <- ggplot() + coord_fixed() + xlab("") + ylab("") + geom_polygon(data=world_map, aes(x=long, y=lat, group=group), colour="light green", fill="light green")
+mapa <- base_world + geom_point(data = ds[ds$city == "Madrid",], aes(x = longitude, y = latitude))
+mapa
+```
+
+```{r}
+min(ds$latitude)
+max(ds$latitude)
+```
+
