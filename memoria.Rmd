@@ -58,6 +58,11 @@ ds <- read.csv("300k.csv")
 ```
 
 ```{r}
+madrid <- ds[ds$city == "Madrid",]
+unique(madrid$cellId_5850m)
+```
+
+```{r}
 cat("Hay un total de " , nrow(ds) , " muestras.\n")
 cat("Cada muestra tiene " , ncol(ds) , " atributos.\n")
 ```
@@ -197,10 +202,24 @@ spain <- subset(world_map, world_map$region=="Spain")
 base_world <- ggplot() + coord_fixed() + xlab("") + ylab("") + geom_polygon(data=world_map, aes(x=long, y=lat, group=group), colour="light green", fill="light green")
 mapa <- base_world + geom_point(data = ds[ds$city == "Madrid",], aes(x = longitude, y = latitude))
 mapa
+base_world
 ```
 
 ```{r}
+minLat <- min(ds[ds$city == "Madrid",]$latitude)
+maxLat <- max(ds[ds$city == "Madrid",]$latitude)
+minLong <- min(ds[ds$city == "Madrid",]$longitude)
+maxLong <- max(ds[ds$city == "Madrid",]$longitude)
+min(ds[ds$city == "New_York",]$latitude)
+max(ds[ds$city == "New_York",]$latitude)
 min(ds$latitude)
 max(ds$latitude)
+print("Veamos que cae en el rango de Madri:")
+unique(ds[ds$latitude >= minLat & ds$latitude <= maxLat & ds$longitude >= minLong & ds$longitude <= maxLong,]$city)
+
+madrid <- ds[ds$city == "Madrid",]
+unique(ds[ds$cellId_90m %in% unique(madrid$cellId_90m),]$city)
+
+unique(ds$city)
 ```
 
