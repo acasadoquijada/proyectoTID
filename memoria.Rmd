@@ -199,10 +199,30 @@ Aquí podemos apreciar que para cualquier tipo de pokemon la mayoría de los avi
 
 ```{r}
 unosDatos <- ds[ds$nombre == "Abra" | ds$nombre == "Kadabra",]
-tabla <- table(unosDatos$nombre, unosDatos$windSpeed)
-plot(unosDatos$windSpeed, type = "l")
+tabla <- table(unosDatos$nombre, unosDatos$population_density)
+plot(unosDatos$population_density, type = "l")
 ```
 
+Una de las principales características de Pokemon GO, aplicación de la cual son estos datos, es la posibilidad de encontrar pokemon en cualquier parte, por ejemplo en entornos cercanos al agua. Se espera, como es natural, que la mayoría de pokemon tipo agua se encuentren en zonas cercanas al agua. Esto daría un gran grado de realismo a la aplicación. Vamos a comprobar si esto es cierto con el tipo agua y a su vez con algunos otros. Para ello vamos a realizar una sere de gráficos.
+
+```{r}
+ds$closeToWater <- factor(ds$closeToWater, levels = c("false", "true"))
+tabla3 <- table(ds[ds$tipo %in% c("agua","bicho","planta","veneno","fuego"), c("closeToWater", "tipo")])
+barplot(tabla3, legend = levels(ds$closeToWater), las = 2, col = c("darkgoldenrod2", "chocolate", "cyan4", "blue4"))
+```
+Los tipos elegidos han sido los considerados más propensos a aparecer cerca de zonas acuosas, por otro lado también se ha usado el tipo fuego.
+
+Se puede comprobar como el tipo agua tiene un gran número de avistamientos cerca de zonas de agua con respecto a los demás, mientrás que el tipo fuego apenas dispone de avistamientos cerca del agua, como es natural.
+
+Antes hemos estado discutiendo sobre los dias de las apariciones de los diferentes pokemon. Por lo que ahora vamos a ver como se distribuyen dichas apariciones a lo largo de los dias de la semana. Para realizar esto vamos a elegir a los siguientes tipos: písquico, planta, fuego, tierra y roca
+
+```{r}
+ds$appearedDayOfWeek <- factor(ds$appearedDayOfWeek, levels = c("Monday", "Friday", "Saturday", "Sunday", "Thursday", "Tuesday", "Wednesday"))
+tabla3 <- table(ds[ds$tipo %in% c("psiquico","planta","fuego","tierra","roca"), c("appearedDayOfWeek", "tipo")])
+barplot(tabla3,las = 2, col = c("darkgoldenrod2", "chocolate", "cyan4", "blue4","firebrick1","darkolivegreen","deeppink2"))
+```
+
+Podemos observar que una gran parte de los avistamientos se realizan en el fin de semana, concretamente los sábados y viernes. También se producen grandes avistamientos los miércoles y jueves, mientras que el lunes es el día que menos avistamientos se producen. Todo esto tiene sentido, ya que hemos de pensar que los datos que estamos tratando son de un video juego para móviles, por lo tanto la mayor actividad, avistamientos, se realizarán cuando los jugadores dispongan de mayor tiempo libre para jugar, fin de semana.
 
 Vamos a representar los datos contenidos en nuestro dataset de forma geográfica:
 
