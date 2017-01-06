@@ -161,12 +161,15 @@ tipos = c(P,P,P,F,F,F,A,A,A,B,B,B,
   A,S,B,H,E,F,B,N,A,A,A,N,
   N,A,E,F,N,R,R,R,R,R,N,H,
   E,F,D,D,D,S,S)
+
+nombres = c("Bulbasaur", "Ivysaur", "Venusaur", "Charmander", "Charmeleon", "Charizard", "Squirtle", "Wartortle", "Blastoise", "Caterpie", "Metapod", "Butterfree", "Weedle", "Kakuna", "Beedrill", "Pidgey", "Pidgeotto", "Pidgeot", "Rattata", "Raticate", "Spearow", "Fearow", "Ekans", "Arbok", "Pikachu", "Raichu", "Sandshrew", "Sandslash", "NidoranH", "Nidorina", "Nidoqueen", "NidoranM", "Nidorino", "Nidoking", "Clefairy", "Clefable","Vulpix", "Ninetales", "Jigglypuff", "Wigglytuff", "Zubat", "Golbat", "Oddish", "Gloom", "Vileplume", "Paras", "Parasect", "Venonat", "Vanomoth", "Diglett", "Dugtrio", "Meowth", "Persian", "Psyduck", "Golduck", "Mankey", "Primeape", "Growlithe", "Arcanine", "Poliwag", "Poliwhirl", "Poliwrath", "Abra", "Kadabra", "Alakazam", "Machop", "Machoke", "Machamp", "Bellsprout", "Weepinbell", "Victreebel", "Tentacool", "Tentacruel", "Geodude", "Graveler", "Golem", "Ponyta", "Rapidash", "Slowpoke", "Slowbro", "Magnemite", "Magneton", "Farfetch'd", "Doduo", "Dodrio", "Seel", "Dewgong", "Grimer", "Muk", "Shellder", "Cloyster", "Gastly", "Haunter", "Gengar", "Onix", "Drowzee", "Hypno", "Krabby", "Kingler", "Voltorb", "Electrode", "Exeggcute", "Exeggutor", "Cubone", "Marowak", "Hitmonlee", "Hitmonchan", "Lickitung", "Koffing", "Weezing", "Rhyhorn", "Rhydon", "Chansey", "Tangela", "Kangaskhan", "Horsea", "Seadra", "Goldeen", "Seaking", "Staryu", "Starmie", "Mr. Mime", "Scyther", "Jynx", "Electrabuzz", "Magmar", "Pinsir", "Tauros", "Magikarp", "Gyarados", "Lapras", "Ditto", "Evee", "Vaporeon", "Jolteon", "Flareon", "Porygon", "Omanyte", "Omastar", "Kabuto", "Kabutops", "Aerodactyl", "Snorlax", "Articuno", "Zapdos", "Moltres", "Dratini", "Dragonair", "Dragonite", "Mewtwo", "Mew")
 ```
 
-Ahora vamos a proceder a añadir la columna de tipos al dataset que hemos cargado:
+Ahora vamos a proceder a añadir la columna de tipos al dataset que hemos cargado, así como el nombre del pokemon observado:
 
 ```{r}
 ds["tipo"] <- tipos[ds$class]
+ds["nombre"] <- nombres[ds$class]
 ```
 
 Veamos entonces cómo se distribuyen las muestran que tenemos según el tipo de pokemon avistado:
@@ -193,6 +196,13 @@ barplot(tabla3, legend = levels(ds$appearedTimeOfDay), las = 2, col = c("darkgol
 ```
 
 Aquí podemos apreciar que para cualquier tipo de pokemon la mayoría de los avistamientos se producen durante la noche. Creíamos que ibamos a apreciar una tendencia en la que los pokemon de tipo fantasma fuesen los que presentaban este comportamiento de una forma más acusada, sin embargo todos los tipos siguen este patrón de aparición.
+
+```{r}
+unosDatos <- ds[ds$nombre == "Abra" | ds$nombre == "Kadabra",]
+tabla <- table(unosDatos$nombre, unosDatos$windSpeed)
+plot(unosDatos$windSpeed, type = "l")
+```
+
 
 Vamos a representar los datos contenidos en nuestro dataset de forma geográfica:
 
