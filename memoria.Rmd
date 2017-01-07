@@ -120,11 +120,6 @@ unique(ds$appearedDay)
 ds <- subset(ds, select = -c(appearedMonth, appearedDay))
 ```
 
-```{r}
-nrow(ds[ds$appearedDayOfWeek == "Monday", ])
-levels(ds$appearedDayOfWeek)
-```
-
 Con lo cual como vemos el número de muestras y de atributos es muy elevado. Además el número de clases a clasificar es muy elevado por lo tanto lo que vamos a hacer es intentar clasificar los pokemon según su tipo, así que vamos a añadir dicha columna al dataset. Los tipos considerados son aquellos que se establecieron en la primera generación de Pokemon y se recogen por medio de las siguientes variables que almacenan una cadena indicando el tipo; estas variables se han añadido por comodidad a la hora de generar el vector de tipos que crearemos a continuación:
 
 ```{r}
@@ -172,7 +167,7 @@ ds["tipo"] <- tipos[ds$class]
 ds["nombre"] <- nombres[ds$class]
 ```
 
-Veamos entonces cómo se distribuyen las muestran que tenemos según el tipo de pokemon avistado:
+Veamos entonces cómo se distribuyen las muestras que tenemos según el tipo de pokemon avistado:
 
 ```{r}
 T <- xtabs(~ tipo, ds)
@@ -206,50 +201,63 @@ plot(unosDatos$population_density, type = "l")
 Una de las principales características de Pokemon GO, aplicación de la cual son estos datos, es la posibilidad de encontrar pokemon en cualquier parte, por ejemplo en entornos cercanos al agua. Se espera, como es natural, que la mayoría de pokemon tipo agua se encuentren en zonas cercanas al agua. Esto daría un gran grado de realismo a la aplicación. Vamos a comprobar si esto es cierto con el tipo agua y a su vez con algunos otros. Para ello vamos a realizar una sere de gráficos.
 
 ```{r}
-ds$closeToWater <- factor(ds$closeToWater, levels = c("false", "true"))
-tabla3 <- table(ds[ds$tipo %in% c("agua","bicho","planta","veneno","fuego"), c("closeToWater", "tipo")])
-barplot(tabla3, legend = levels(ds$closeToWater), las = 2, col = c("darkgoldenrod2", "chocolate", "cyan4", "blue4"))
+tabla3 <- table(ds$closeToWater, ds$tipo)
+barplot(tabla3, legend = levels(ds$closeToWater), las = 2, col = c("burlywood4", "deepskyblue3"), horiz = TRUE)
+
+conteo <- merge(count(ds[ds$closeToWater == "true",]$tipo), count(ds$tipo), by = "x")
+colnames(conteo) <- c("tipo", "cercaDelAgua", "total")
+conteo["proporcion"] <- conteo$cercaDelAgua / conteo$total
+conteo[with(conteo, order(-proporcion)), ]
 ```
-Los tipos elegidos han sido los considerados más propensos a aparecer cerca de zonas acuosas, por otro lado también se ha usado el tipo fuego.
+Mostramos tanto una gráfica en la que se puede ver la distribución de las muestras referentes a cada tipo según se hayan avistado cerca del agua o no y un ranking ordenado según la proporción de avistamientos cerca del agua. Así vemos que los pokemon de tipo eléctrico, dragón, agua e hielo son los que aparecen en mayor proporción cerca del agua. Por otro lado los pokemon de tipo fuego, planta, roca, normal y bicho son los que en menor proporción se presentan en zona acuosas. Nos sorprende de este análisis dos cosas: que no sean los pokemon de tipo agua los que sean más habituales en proporción en zonas acuosas y que los pokemons de tipo planta estén en menor proporción en las zonas con agua que en las zonas secas.
 
-Se puede comprobar como el tipo agua tiene un gran número de avistamientos cerca de zonas de agua con respecto a los demás, mientrás que el tipo fuego apenas dispone de avistamientos cerca del agua, como es natural.
+Aquí estamos hablando de proporciones, si nos fijamos en cantidades sí son los pokemon (después de los normales) de tipo agua los que aparecen más veces cerca del agua, no obstante preferimos atender a las proporciones ya que no queremos hay que tener en cuenta que habrá unos tipo de pokemon más difíciles de encontrar que otros.
 
-Antes hemos estado discutiendo sobre los dias de las apariciones de los diferentes pokemon. Por lo que ahora vamos a ver como se distribuyen dichas apariciones a lo largo de los dias de la semana. Para realizar esto vamos a elegir a los siguientes tipos: písquico, planta, fuego, tierra y roca
+Antes hemos estado discutiendo sobre los dias de las apariciones de los diferentes pokemon. Por lo que ahora vamos a ver como se distribuyen dichas apariciones a lo largo de los dias de la semana. Para realizar esto vamos a elegir a los siguientes tipos: psíquico, planta, fuego, tierra y roca
 
 ```{r}
-ds$appearedDayOfWeek <- factor(ds$appearedDayOfWeek, levels = c("Monday", "Friday", "Saturday", "Sunday", "Thursday", "Tuesday", "Wednesday"))
-tabla3 <- table(ds[ds$tipo %in% c("psiquico","planta","fuego","tierra","roca"), c("appearedDayOfWeek", "tipo")])
-barplot(tabla3,las = 2, col = c("darkgoldenrod2", "chocolate", "cyan4", "blue4","firebrick1","darkolivegreen","deeppink2"))
+ds$appearedDayOfWeek <- factor(ds$appearedDayOfWeek, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+conteoDias <- table(ds$appearedDayOfWeek, ds$tipo)
+barplot(conteoDias, las = 2, col = c("gray8", "gray27", "gray41", "gray58","green","green4","forestgreen"), legend = levels(ds$appearedDayOfWeek))
+
+diasSemana <- c("Monday", "Tuesday", "Wednesday", "Thursday")
+tablaSemana <- count(ds[ds$appearedDayOfWeek %in% diasSemana, "tipo"])
+tablaFinDeSemana <- count(ds[! ds$appearedDayOfWeek %in% diasSemana, "tipo"])
+conteoSemana <- merge(tablaSemana, tablaFinDeSemana, by = "x")
+colnames(conteoSemana) <- c("tipo", "L-J", "V-D")
+conteoSemana
 ```
 
 Podemos observar que una gran parte de los avistamientos se realizan en el fin de semana, concretamente los sábados y viernes. También se producen grandes avistamientos los miércoles y jueves, mientras que el lunes es el día que menos avistamientos se producen. Todo esto tiene sentido, ya que hemos de pensar que los datos que estamos tratando son de un video juego para móviles, por lo tanto la mayor actividad, avistamientos, se realizarán cuando los jugadores dispongan de mayor tiempo libre para jugar, fin de semana.
 
-Vamos a representar los datos contenidos en nuestro dataset de forma geográfica:
+Dado que contamos con la latitud y longitud de los avistamiento decidimos representarlos en un mapa, pero al pintar únicamente los puntos referentes a avistamientos en Madrid nos encontramos lo siguiente:
 
 ```{r}
 world_map <- map_data("world")
-spain <- subset(world_map, world_map$region=="Spain")
-base_world <- ggplot() + coord_fixed() + xlab("") + ylab("") + geom_polygon(data=world_map, aes(x=long, y=lat, group=group), colour="light green", fill="light green")
-mapa <- base_world + geom_point(data = ds[ds$city == "Madrid",], aes(x = longitude, y = latitude))
+base_world <- ggplot() + coord_fixed() + xlab("") + ylab("") + geom_polygon(data=world_map, aes(x=long, y=lat, group=group), colour="lightsalmon4", fill="burlywood3")
+mapa <- base_world + geom_point(data = ds[ds$nombre == "Tauros" & ds$city == "Oslo",], aes(x = longitude, y = latitude))
 mapa
-base_world
 ```
+
+Hay puntos que no se sitúan en Madrid, otros que sí. Pensamos que podría deberse a un problema con el sistema de coordenadas empleado en el datates y el empleado en el mapa base. Entonces realizamos el siguiente experimento:
 
 ```{r}
 minLat <- min(ds[ds$city == "Madrid",]$latitude)
 maxLat <- max(ds[ds$city == "Madrid",]$latitude)
 minLong <- min(ds[ds$city == "Madrid",]$longitude)
 maxLong <- max(ds[ds$city == "Madrid",]$longitude)
-min(ds[ds$city == "New_York",]$latitude)
-max(ds[ds$city == "New_York",]$latitude)
-min(ds$latitude)
-max(ds$latitude)
-print("Veamos que cae en el rango de Madri:")
+
+#Veamos a qué ciudades pertenecen los avistamientos cuya latitud y longitud están en el rango de los puntos de Madrid
 unique(ds[ds$latitude >= minLat & ds$latitude <= maxLat & ds$longitude >= minLong & ds$longitude <= maxLong,]$city)
+```
 
+Como podemos ver hay avistamientos dentro del mismo rango de latitud y longitud que los puntos en Madrid en ciudades tan dispares como Londres, Berlín, Nueva York o Sydney en Australia. Por tanto consideramos que el problema es que al haber formado el dataset, como comenta el propio creador del mismo, con datos de distintas fuentes, las coordeandas de estos avistamientos provienen de distintos sistemas de coordenadas, produciendo este tipo de inconsistencias. Por tanto estos datos juntos con los referentes a los ids de las celdas S2 de distinto tamaño que se obtienen, según se dice en la página principal del dataset, a partir de ellas son datos erróneos y que no se pueden usar para nuestro estudio. No obstante consideraremos que el atributo referencia a la ciudad del avistamiento sí que puede ser correcto y lo mantendremos para nuestro estudio.
+
+```{r}
 madrid <- ds[ds$city == "Madrid",]
-unique(ds[ds$cellId_90m %in% unique(madrid$cellId_90m),]$city)
 
-unique(ds$city)
+raro <- ds[ds$nombre == "Tauros",]
+unique(raro$city)
+unique(raro$continent)
 ```
 
