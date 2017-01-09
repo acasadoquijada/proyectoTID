@@ -9,6 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(arules)
 library(plyr)
 library(ggplot2)
+library(sampling)
 ```
 
 ## Introducción
@@ -57,10 +58,7 @@ En primer lugar vamos a ver cuántas muestras y atributos tiene nuestro dataset.
 ds <- read.csv("300k.csv")
 ```
 
-```{r}
-madrid <- ds[ds$city == "Madrid",]
-unique(madrid$cellId_5850m)
-```
+
 
 ```{r}
 cat("Hay un total de " , nrow(ds) , " muestras.\n")
@@ -96,6 +94,12 @@ Por lo comentando arriba se va a optar a eliminar los atributos correspondientes
 
 ```{r}
 ds <- subset(ds, select = -c(cellId_90m, cellId_180m, cellId_370m, cellId_730m, cellId_1460m, cellId_2920m, cellId_5850m))
+```
+
+TODO: explicación de por qué quitamos la ciudad y el continente:
+
+```{r}
+ds <- subset(ds, select = -c(city, continent))
 ```
 
 Por otro lado al explorar el dataset observamos que en el atributo **appearedDayOfWeek** se tomaba el valor *dummy_day*, y al consultar los valores que toma este atributo a lo largo del dataset vimos que no aparecia el lunes cuando el resto de los dias de la semana si que aparecen, con lo cual procedemos a revisar si este valor del atributo se corresponde con el lunes o es simplemente un valor perdido:
@@ -179,6 +183,40 @@ barplot(T, main = "Distribución de tipos", horiz = TRUE, ylab= "Tipo", col = co
 
 Como podemos ver una vez que hemos agrupado las muestras por el tipo de Pokemon vemos que las clases están tremendamente desequilibradas. Mientras que hay muchísimos avistamientos de Pokemon de tipo normal, las clases hielo, dragón, fastasma, eléctrico o roca resultan marginales. Con lo cual en primer lugar hemos de realizar un equilibrado de estas clases.
 
+Dado que el número de clases es muy grande hemos, aún habiendo agrupado por tipo de pokemon las muestras, hemos optado por quedarnos sólo con 5 clases. La elección ha sido quedarnos con las clases agua, fuego, planta, psiquíco y fantasma.
+
+```{r}
+reglasGenerales <- apriori(ds[, -c(1, 2, 3, 5, 6, 8, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 29, 182, 183, 184)], parameter = list(support = 0.1, confidence = 0.8, minlen = 2, maxlen = 3, maxtime=300))
+```
+```{r}
+inspect(reglasGenerales)
+```
+```{r}
+unique(ds[ds$appearedDayOfWeek=="Sunday",]$pokemonId)
+```
+
+```{r}
+dsFiltrado <- ds[ds$tipo %in% c("agua", "fuego", "planta", "psiquico", "fantasma"), ]
+
+T <- xtabs(~ tipo, dsFiltrado)
+etiquetas = c("agua", "fantasma", "fuego", "planta", "psiquico")
+print(T)
+colores = rev(c("pink", "forestgreen", "red", "midnightblue", "dodgerblue"))
+barplot(T, main = "Distribución de tipos", ylab= "Tipo", col = colores, legend.text = etiquetas, args.legend=list(bty = "n", x = "right"))
+nrow(dsFiltrado)
+```
+
+Vamos a realizar un submuestreo aleatorio de modo que nos quedemos con 1000 muestras distintas de cada clase y otras 500 diferentes de cada clase para formar nuestro conjunto de test:
+
+```{r}
+index <- lapply(c("agua", "fantasma", "fuego", "planta", "psiquico"), function(tipo) sample(which(dsFiltrado$tipo == tipo), 1500))
+nrow(dsFiltrado[index[[1]], ])
+unique(dsFiltrado[index[[1]], ]$tipo)
+
+strata(dsFiltrado, c("tipo"))
+```
+
+
 ```{r}
 ds$appearedTimeOfDay <- factor(ds$appearedTimeOfDay, levels = c("morning", "afternoon", "evening", "night"))
 tabla <- table(ds$appearedTimeOfDay, ds$tipo)
@@ -235,7 +273,7 @@ Dado que contamos con la latitud y longitud de los avistamiento decidimos repres
 ```{r}
 world_map <- map_data("world")
 base_world <- ggplot() + coord_fixed() + xlab("") + ylab("") + geom_polygon(data=world_map, aes(x=long, y=lat, group=group), colour="lightsalmon4", fill="burlywood3")
-mapa <- base_world + geom_point(data = ds[ds$nombre == "Tauros" & ds$city == "Oslo",], aes(x = longitude, y = latitude))
+mapa <- base_world + geom_point(data = ds[ds$nombre == "Tauros"], aes(x = longitude, y = latitude))
 mapa
 ```
 
