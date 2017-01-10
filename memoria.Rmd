@@ -305,7 +305,9 @@ DISTRIBUCIÓN de los tipos en el mapa.
 ```{r}
 world_map <- map_data("world")
 base_world <- ggplot() + coord_fixed() + xlab("") + ylab("") + geom_polygon(data=world_map, aes(x=long, y=lat, group=group), colour="lightsalmon4", fill="burlywood3")
-mapa <- base_world + geom_point(data = ds, aes(x = longitude, y = latitude, colour = ds$tipo))
+colores <- rev(c("darkorchid", "burlywood3","darkgoldenrod4", "pink", "forestgreen", "darkgray", "brown4", "cyan2", "red", "midnightblue", "yellow", "slateblue4", "yellowgreen", "dodgerblue"))
+escaleta <- scale_colour_manual(name = c("agua", "bicho", "dragon", "electrico", "fantasma", "fuego", "hielo", "lucha", "normal", "planta", "psiquico", "roca", "tierra", "veneno"), values = colores)
+mapa <- base_world + geom_point(data = ds, aes(x = longitude, y = latitude, color = ds$tipo)) + escaleta
 mapa
 ```
 
@@ -334,15 +336,14 @@ Debido a la gran cantidad de muestras y clases del dataset, hemos decidido queda
 
 ```{r}
 T <- xtabs(~ nombre, ds)
-T[nombre = "Voltorb"]
-T[nombre = "Tentacool"]
-T[nombre = "Golbat"]
-T[nombre = "Abra"]
-T[nombre = "Ponyta"]
-
+T[nombre = "Exeggcute"]
+T[nombre = "Squirtle"]
+T[nombre = "Pinsir"]
+T[nombre = "Meowth"]
+T[nombre = "Kakuna"]
 ```
 
-Hemos decidido quedarnos con los pokemon Voltorb (1073), Tentacool (1153), Golbat (1035), Abra(1360) y Ponyta(1210)
+Hemos decidido quedarnos con los pokemon Exeggcute (1786), Squirtle (1490), Pinsir (1404), Meowth(1757) y Kakuna(1807)
 
 
 
