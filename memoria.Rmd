@@ -273,7 +273,7 @@ Dado que contamos con la latitud y longitud de los avistamiento decidimos repres
 ```{r}
 world_map <- map_data("world")
 base_world <- ggplot() + coord_fixed() + xlab("") + ylab("") + geom_polygon(data=world_map, aes(x=long, y=lat, group=group), colour="lightsalmon4", fill="burlywood3")
-mapa <- base_world + geom_point(data = ds[ds$nombre == "Tauros"], aes(x = longitude, y = latitude))
+mapa <- base_world + geom_point(data = ds[ds$nombre == "Tauros",], aes(x = longitude, y = latitude))
 mapa
 ```
 
@@ -298,6 +298,37 @@ raro <- ds[ds$nombre == "Tauros",]
 unique(raro$city)
 unique(raro$continent)
 ```
+
+
+DISTRIBUCIÓN de los tipos en el mapa.
+
+```{r}
+world_map <- map_data("world")
+base_world <- ggplot() + coord_fixed() + xlab("") + ylab("") + geom_polygon(data=world_map, aes(x=long, y=lat, group=group), colour="lightsalmon4", fill="burlywood3")
+mapa <- base_world + geom_point(data = ds, aes(x = longitude, y = latitude, colour = ds$tipo))
+mapa
+```
+
+Distribución de los tipos de terreno en el mapa
+
+```{r}
+world_map <- map_data("world")
+base_world <- ggplot() + coord_fixed() + xlab("") + ylab("") + geom_polygon(data=world_map, aes(x=long, y=lat, group=group), colour="lightsalmon4", fill="burlywood3")
+mapa <- base_world + geom_point(data = ds, aes(x = longitude, y = latitude, colour = ds$terrainType))
+mapa
+```
+
+Distribución de los distintos tipos de clima en el mapa
+
+```{r}
+world_map <- map_data("world")
+base_world <- ggplot() + coord_fixed() + xlab("") + ylab("") + geom_polygon(data=world_map, aes(x=long, y=lat, group=group), colour="lightsalmon4", fill="burlywood3")
+mapa <- base_world + geom_point(data = ds, aes(x = longitude, y = latitude, colour = ds$weather))
+mapa
+```
+
+
+
 
 Debido a la gran cantidad de muestras y clases del dataset, hemos decidido quedarnos con 5 clases, 5 pokemon, de aproximadamente 1000 muestras cada una.
 
