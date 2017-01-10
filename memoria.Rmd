@@ -353,7 +353,6 @@ dsFiltrado <- read.csv("5Pokemon.csv")
 Hemos decidido quedarnos con los pokemon Exeggcute (1786), Squirtle (1490), Pinsir (1404), Meowth(1757) y Kakuna(1807)
 
 
-
 Eliminamos los atributos **pokemonId** y **class**
 
 ```{r}
@@ -368,6 +367,12 @@ indicesAquitar = (apply(dsFiltrado, 2, function(x)length(unique(x))) == 1)
 dsFiltrado <- dsFiltrado[, !indicesAquitar]
 ```
 
+```{r}
+library("tree")
+
+arbol = tree(nombre ~., data=dsFiltrado)
+
+```
 
 
 
