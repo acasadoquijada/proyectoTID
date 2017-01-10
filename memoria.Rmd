@@ -186,13 +186,14 @@ Como podemos ver una vez que hemos agrupado las muestras por el tipo de Pokemon 
 Dado que el número de clases es muy grande hemos, aún habiendo agrupado por tipo de pokemon las muestras, hemos optado por quedarnos sólo con 5 clases. La elección ha sido quedarnos con las clases agua, fuego, planta, psiquíco y fantasma.
 
 ```{r}
-reglasGenerales <- apriori(ds[, -c(1, 2, 3, 5, 6, 8, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 29, 182, 183, 184)], parameter = list(support = 0.1, confidence = 0.8, minlen = 2, maxlen = 3, maxtime=300))
+
+#reglasGenerales <- apriori(ds[, -c(1, 2, 3, 5, 6, 8, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 29, 182, 183, 184)], parameter = list(support = 0.1, confidence = 0.8, minlen = 2, maxlen = 3, maxtime=300))
 ```
 ```{r}
-inspect(reglasGenerales)
+#inspect(reglasGenerales)
 ```
 ```{r}
-unique(ds[ds$appearedDayOfWeek=="Sunday",]$pokemonId)
+#unique(ds[ds$appearedDayOfWeek=="Sunday",]$pokemonId)
 ```
 
 ```{r}
@@ -341,6 +342,14 @@ T[nombre = "Squirtle"]
 T[nombre = "Pinsir"]
 T[nombre = "Meowth"]
 T[nombre = "Kakuna"]
+
+nombrePokemonSelecionados = c("Exeggcute", "Squirtle", "Pinsir", "Meowth","Kakuna")
+dsFiltrado = ds[ds$nombre %in% nombrePokemonSelecionados,]
+
+write.csv(dsFiltrado,file = "5Pokemon.csv",row.names = FALSE)
+
+dsFiltrado <- read.csv("5Pokemon.csv")
+
 ```
 
 Hemos decidido quedarnos con los pokemon Exeggcute (1786), Squirtle (1490), Pinsir (1404), Meowth(1757) y Kakuna(1807)
