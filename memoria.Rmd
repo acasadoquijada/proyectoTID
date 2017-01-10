@@ -299,3 +299,25 @@ unique(raro$city)
 unique(raro$continent)
 ```
 
+Debido a la gran cantidad de muestras y clases del dataset, hemos decidido quedarnos con 5 clases, 5 pokemon, de aproximadamente 1000 muestras cada una.
+
+```{r}
+T <- xtabs(~ nombre, ds)
+T[nombre = "Voltorb"]
+T[nombre = "Tentacool"]
+T[nombre = "Golbat"]
+T[nombre = "Abra"]
+T[nombre = "Ponyta"]
+
+```
+
+Hemos decidido quedarnos con los pokemon Voltorb (1073), Tentacool (1153), Golbat (1035), Abra(1360) y Ponyta(1210)
+
+
+
+
+
+
+
+
+
