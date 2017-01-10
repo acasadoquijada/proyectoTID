@@ -58,8 +58,6 @@ En primer lugar vamos a ver cuántas muestras y atributos tiene nuestro dataset.
 ds <- read.csv("300k.csv")
 ```
 
-
-
 ```{r}
 cat("Hay un total de " , nrow(ds) , " muestras.\n")
 cat("Cada muestra tiene " , ncol(ds) , " atributos.\n")
@@ -356,6 +354,19 @@ Hemos decidido quedarnos con los pokemon Exeggcute (1786), Squirtle (1490), Pins
 
 
 
+Eliminamos los atributos **pokemonId** y **class**
+
+```{r}
+dsFiltrado <- subset(dsFiltrado, select = -c(pokemonId, class))
+```
+
+Lo que vamos a hacer es buscar variables que tengan al menos dos valores distintos a lo largo del dataset. Las que solo presenten un valor serán eliminadas ya que no aportan ninguna información para la clasificación.
+
+```{r}
+indicesAquitar = (apply(dsFiltrado, 2, function(x)length(unique(x))) == 1)
+
+dsFiltrado <- dsFiltrado[, !indicesAquitar]
+```
 
 
 
