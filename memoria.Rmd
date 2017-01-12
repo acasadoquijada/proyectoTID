@@ -366,7 +366,7 @@ dsFiltrado <- dsFiltrado[, !indicesAquitar]
 ```
 
 
-Antes de proceder al uso de �rboles de decisi�n vamos a realizar una normalizaci�n de las distintas variables num�ricas
+Antes de proceder al uso de �rboles de decisi�n vamos a realizar una normalizaci�n de las distintas variables num�ricas
 
 ```{r}
 
@@ -386,7 +386,9 @@ dsFiltrado$pressure = normalize(dsFiltrado$pressure)
 
 dsFiltrado$population_density = normalize(dsFiltrado$population_density)
 
+dsFiltrado$gymDistanceKm = normalize(as.numeric(dsFiltrado$gymDistanceKm))
 
+dsFiltrado$pokestopDistanceKm = normalize(as.numeric(dsFiltrado$pokestopDistanceKm))
 ```
 
 Al intentar usar la función tree para obtener un árbol de decisión obteniamos un error diciéndo que teníamos una variable categórica con más de 32 nivels, usando el código `str(dsFiltrado)`, observamos que el atributo pokestopDistanceKm era categórico, algo que no conisderamos que tenga mucho sentido. Con lo cual pasamos a transformar este atributo a numérico:
