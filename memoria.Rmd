@@ -432,3 +432,107 @@ dd = diag(tt)
 sum(dd)/nrow(test)*100
 ```
 
+Dado los resultados obtenidos utilizando los métodos de clasificación vamos a proceder a utilizar **random forest**
+
+
+```{r}
+library(randomForest)
+library(data.table)
+library(ggplot2)
+set.seed(42)
+idx = sample(2, 0.7*nrow(dsFiltrado), replace = TRUE, prob = c(0.8, 0.2))
+train = dsFiltrado[idx == 1,]
+test = dsFiltrado[idx == 2,]
+
+modelo = nombre ~.
+arbol = randomForest(modelo, data = train)
+
+table(predict(arbol),train$nombre)
+arbol
+
+# Get OOB data from plot and coerce to data.table
+oobData = as.data.table(plot(arbol))
+
+# Define trees as 1:ntree
+oobData[, trees := .I]
+
+# Cast to long format
+oobData2 = melt(oobData, id.vars = "trees")
+setnames(oobData2, "value", "error")
+
+# Plot using ggplot
+ggplot(data = oobData2, aes(x = trees, y = error, color = variable)) + geom_line()
+
+
+testpred=predict(arbol,newdata=test)
+table(testpred,test$nombre)
+tt=table(testpred,test$nombre)
+
+dd=diag(tt)
+bien=sum(dd)
+bien_clasificados=(bien/nrow(test))*100
+bien_rf=bien_clasificados
+#Bien y mal clasificados
+bien_clasificados
+100-bien_clasificados
+
+#Precision, Recall y F-measure
+ft=0 
+m=c(1:nrow(tt))
+n=m
+prec=n
+rec=m
+fmes=m
+for(i in 1:nrow(tt)){m[i]=sum(tt[i,])}
+for(i in 1:nrow(tt)){n[i]=sum(tt[,i])}
+for(i in 1:nrow(tt)){prec[i]=dd[i]/m[i]}
+for(i in 1:nrow(tt)){rec[i]=dd[i]/n[i]} 
+for(i in 1:nrow(tt)){fmes[i]=2*dd[i]/(m[i]+n[i])}
+ft=0
+for(i in 1:nrow(tt)){ft=ft+(fmes[i]/nrow(tt))}
+#Precision
+prec
+
+#Recall
+rec
+#F-measure
+fmes
+#F-measure total
+ft
+ft_rf=ft 
+
+```
+
+
+Pruebas con KNN
+
+```{r}
+library(kknn)
+
+set.seed(42)
+idx = sample(2, 0.7*nrow(dsFiltrado), replace = TRUE, prob = c(0.8, 0.2))
+entrena = dsFiltrado[idx == 1,]
+test = dsFiltrado[idx == 2,]
+
+modelo = nombre ~.
+
+arbol.kknn=kknn(formula=modelo,entrena, test, na.action=na.omit(),k=3)
+fit=fitted(arbol.kknn)
+tt=table(fit,test$nombre)
+tt
+
+dd=diag(tt)
+bien=sum(dd)
+bien_clasificados=(bien/nrow(test))*100
+#Bien y mal clasificados
+bien_knn=bien_clasificados
+bien_clasificados
+100-bien_clasificados
+
+```
+
+
+
+
+
+
