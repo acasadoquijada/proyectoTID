@@ -122,6 +122,14 @@ unique(ds$appearedDay)
 ds <- subset(ds, select = -c(appearedMonth, appearedDay))
 ```
 
+Podemos comprobar también que podemos obtener los atributos **sunriseMinutesMidnight** y **sunsetMinutesMidnight** a partir de los atributos: **sunriseHour**, **sunriseMinute**, **sunsetHour** y **sunsetMinute**, con lo que procedemos a eliminar estos 4 últimos:
+
+```{r}
+sum(ds$sunriseMinutesMidnight == (ds$sunriseHour*60 + ds$sunriseMinute))/nrow(ds)*100
+sum(ds$sunsetMinutesMidnight == (ds$sunsetHour*60 + ds$sunsetMinute))/nrow(ds)*100
+ds <- subset(ds, select = -c(sunriseHour, sunriseMinute, sunsetHour, sunsetMinute))
+```
+
 Con lo cual como vemos el número de muestras y de atributos es muy elevado. Además el número de clases a clasificar es muy elevado por lo tanto lo que vamos a hacer es intentar clasificar los pokemon según su tipo, así que vamos a añadir dicha columna al dataset. Los tipos considerados son aquellos que se establecieron en la primera generación de Pokemon y se recogen por medio de las siguientes variables que almacenan una cadena indicando el tipo; estas variables se han añadido por comodidad a la hora de generar el vector de tipos que crearemos a continuación:
 
 ```{r}
@@ -193,26 +201,6 @@ Dado que el número de clases es muy grande hemos, aún habiendo agrupado por ti
 ```{r}
 #unique(ds[ds$appearedDayOfWeek=="Sunday",]$pokemonId)
 ```
-
-```{r}
-dsFiltrado <- ds[ds$tipo %in% c("agua", "fuego", "planta", "psiquico", "fantasma"), ]
-
-T <- xtabs(~ tipo, dsFiltrado)
-etiquetas = c("agua", "fantasma", "fuego", "planta", "psiquico")
-print(T)
-colores = rev(c("pink", "forestgreen", "red", "midnightblue", "dodgerblue"))
-barplot(T, main = "Distribución de tipos", ylab= "Tipo", col = colores, legend.text = etiquetas, args.legend=list(bty = "n", x = "right"))
-nrow(dsFiltrado)
-```
-
-Vamos a realizar un submuestreo aleatorio de modo que nos quedemos con 1000 muestras distintas de cada clase y otras 500 diferentes de cada clase para formar nuestro conjunto de test:
-
-```{r}
-index <- lapply(c("agua", "fantasma", "fuego", "planta", "psiquico"), function(tipo) sample(which(dsFiltrado$tipo == tipo), 1500))
-nrow(dsFiltrado[index[[1]], ])
-unique(dsFiltrado[index[[1]], ]$tipo)
-```
-
 
 ```{r}
 ds$appearedTimeOfDay <- factor(ds$appearedTimeOfDay, levels = c("morning", "afternoon", "evening", "night"))
@@ -329,7 +317,7 @@ mapa
 
 
 
-Debido a la gran cantidad de muestras y clases del dataset, hemos decidido quedarnos con 5 clases, 5 pokemon, de aproximadamente 1000 muestras cada una.
+Debido a la gran cantidad de muestras y clases del dataset, hemos decidido quedarnos con 5 clases, 5 pokemon, de aproximadamente 1000 muestras cada una para hacer clasificación TODO explicar por qué nos centramos en un problema de clasificación y no en otro:
 
 ```{r}
 T <- xtabs(~ nombre, ds)
@@ -343,15 +331,15 @@ nombrePokemonSelecionados = c("Exeggcute", "Squirtle", "Metapod", "Meowth","Kaku
 dsFiltrado = ds[ds$nombre %in% nombrePokemonSelecionados,]
 
 write.csv(dsFiltrado,file = "5Pokemon.csv",row.names = FALSE)
-
-dsFiltrado <- read.csv("5Pokemon.csv")
-
 ```
 
-Hemos decidido quedarnos con los pokemon Exeggcute (1786), Squirtle (1490), Pinsir (1404), Meowth(1757) y Kakuna(1807)
+Hemos decidido quedarnos con los pokemon Exeggcute (1786), Squirtle (1490), Pinsir (1404), Meowth(1757) y Kakuna(1807) TODO explicar por qué elegimos estas clases y no otras.
 
+```{r}
+dsFiltrado <- read.csv("5Pokemon.csv")
+```
 
-Eliminamos los atributos **pokemonId** y **class**
+Eliminamos los atributos **pokemonId** y **class** ya que este atributo es el que es objetivo de nuestra clasificación:
 
 ```{r}
 dsFiltrado <- subset(dsFiltrado, select = -c(pokemonId, class))
@@ -361,12 +349,29 @@ Lo que vamos a hacer es buscar variables que tengan al menos dos valores distint
 
 ```{r}
 indicesAquitar = (apply(dsFiltrado, 2, function(x)length(unique(x))) == 1)
-
 dsFiltrado <- dsFiltrado[, !indicesAquitar]
 ```
 
+En un primer uso del dataset para probar los árboles de decisión nos encontramos con que una variable factor tenía más de 32 niveles con lo que los árboles no podían trabajar con nuestro dataset. Al revisar los tipos de variable del dataset nos encontramos con la el atributo **pokestopDistanceKm** era de tipo factor. Esto no tiene sentido ya que realmente esta variable es simplemente una variable que nos da la distancia en kilómetros del avistamiento de un pokemon a una poke-parada. Por lo tanto pasamos esta variable a numérica:
 
-Antes de proceder al uso de �rboles de decisi�n vamos a realizar una normalizaci�n de las distintas variables num�ricas
+```{r}
+dsFiltrado$pokestopDistanceKm = as.numeric(as.character(dsFiltrado$pokestopDistanceKm))
+```
+Al pasar esta variable a numérica observámos algo que se nos había pasado por alto, revisar si teníamos valores perdido en nuestro dataset, entonces observamos que esto se daba en una sola muestra, con lo que decidimos quitarla:
+
+```{r}
+idx <- which(is.na(dsFiltrado$pokestopDistanceKm))
+dsFiltrado <- dsFiltrado[-idx,]
+```
+
+Y puesto que esto nos ha pasado con este atributo pasamos a ver si esto se daba en alguno más. Comprobamos que no se daba:
+
+```{r}
+sum(apply(dsFiltrado, 2, function(x) sum(is.na(x))) >= 1)
+```
+
+
+Antes de proceder al uso de árboles de decisión vamos a realizar una normalización de las distintas variables numéricas, esto lo hacemos ya que, entre otros algoritmos de clasificación, vamos a usar el KNN el cuál tiene su base en la distancia entre muestras, por lo tanto queremos evitar que la escala de un atributo haga que éste tenga más peso que otros en las decisiones del algoritmo:
 
 ```{r}
 
@@ -374,41 +379,61 @@ normalize <- function(x) {
     return ((x - min(x)) / (max(x) - min(x)))
 }
 
-dsFiltrado$latitude = normalize( dsFiltrado$latitude)
+numericIdx <- sapply(dsFiltrado, is.numeric)
+dsFiltrado[, numericIdx] = apply(dsFiltrado[, numericIdx], 2, normalize)
 
-dsFiltrado$longitude = normalize(dsFiltrado$longitude)
 
-dsFiltrado$temperature = normalize(dsFiltrado$temperature)
+# dsFiltrado$latitude = normalize( dsFiltrado$latitude)
+# 
+# dsFiltrado$longitude = normalize(dsFiltrado$longitude)
+# 
+# dsFiltrado$temperature = normalize(dsFiltrado$temperature)
+# 
+# dsFiltrado$windSpeed = normalize(dsFiltrado$windSpeed)
+# 
+# dsFiltrado$pressure = normalize(dsFiltrado$pressure)
+# 
+# dsFiltrado$population_density = normalize(dsFiltrado$population_density)
+# 
+# dsFiltrado$gymDistanceKm = normalize(as.numeric(dsFiltrado$gymDistanceKm))
+# 
+# dsFiltrado$pokestopDistanceKm = normalize(as.numeric(dsFiltrado$pokestopDistanceKm))
+```
 
-dsFiltrado$windSpeed = normalize(dsFiltrado$windSpeed)
+Como a partir del atributo **population_density** podemos obtener los 4 atributos **urban**, **suburban**, **midurban** y **rural**, ya que lo que queremos hacer con este nuevo dataset es clasificación, vamos a quitarlos:
 
-dsFiltrado$pressure = normalize(dsFiltrado$pressure)
+```{r}
+dsFiltrado = subset(dsFiltrado, select = -c(urban, suburban, midurban, rural))
+```
 
-dsFiltrado$population_density = normalize(dsFiltrado$population_density)
+Ya hemos dicho anteriormente que vamos a trabajar con algunos algoritmos que dependen de la distancia entre las muestras, entonces lo que vamos a hacer ahora es pasar aquellos atributos categóricos con dos niveles (que son false y true) a atributos numéricos con dos valores 0 y 1. Estos atributos son los relativos a las coocurrencias y el que nos indica si el avistamiento fue próximo al agua, **closeToWater**:
 
-dsFiltrado$gymDistanceKm = normalize(as.numeric(dsFiltrado$gymDistanceKm))
+```{r}
+a <- which(colnames(dsFiltrado) == "cooc_1")
+b <- which(colnames(dsFiltrado) == "cooc_149")
+c <- which(colnames(dsFiltrado) == "closeToWater")
+binaryIdx = c(a:b, c)
+dsFiltrado[, binaryIdx] = apply(dsFiltrado[, binaryIdx], 2, function(x) ifelse(x == "true", 1, 0))
+```
 
-dsFiltrado$pokestopDistanceKm = normalize(as.numeric(dsFiltrado$pokestopDistanceKm))
+Nuevamente debido a la influencia de la distancia vamos a pasar los atributos categóricos con más de 2 niveles (salvo el relativo al nombre del pokemon y el tipo ya que no los usaremos en la clasificación) a atributos binarios, uno por cada nivel de cada uno de estros atributos. Para ello haremos uso de la función `dummyVars` del paquete **caret**:
+
+```{r}
+library(caret)
+
+dsFiltrado <- cbind(dsFiltrado, predict(dummyVars(~ appearedTimeOfDay, data = dsFiltrado), newdata = dsFiltrado))
+dsFiltrado <- cbind(dsFiltrado, predict(dummyVars(~ appearedDayOfWeek, data = dsFiltrado), newdata = dsFiltrado))
+dsFiltrado <- cbind(dsFiltrado, predict(dummyVars(~ weather, data = dsFiltrado), newdata = dsFiltrado))
+dsFiltrado <- cbind(dsFiltrado, predict(dummyVars(~ weatherIcon, data = dsFiltrado), newdata = dsFiltrado))
+
+dsFiltrado <- subset(dsFiltrado, select = -c(appearedTimeOfDay, appearedDayOfWeek, weather, weatherIcon))
 ```
 
 Al intentar usar la función tree para obtener un árbol de decisión obteniamos un error diciéndo que teníamos una variable categórica con más de 32 nivels, usando el código `str(dsFiltrado)`, observamos que el atributo pokestopDistanceKm era categórico, algo que no conisderamos que tenga mucho sentido. Con lo cual pasamos a transformar este atributo a numérico:
 ```{r}
 library("tree")
 
-dsFiltrado$pokestopDistanceKm = as.numeric(as.character(dsFiltrado$pokestopDistanceKm))
-```
 
-Este código nos informa de que se introduce un NA por coerción y explorando el dataset observamos que efectivamente hay un valor perdido, lo que vamos a hacer es eliminar esta muestra ya que tampoco consideramos que perdamos mucha información eliminando sólo una muestra:
-
-```{r}
-idx <- which(is.na(dsFiltrado$pokestopDistanceKm))
-dsFiltrado <- dsFiltrado[-idx,]
-```
-
-Ya que nos ha pasado esto vamos a comprobar si existe algún valor perdido más en nuestro dataset:
-
-```{r}
-sum(apply(dsFiltrado, 2, function(x) sum(is.na(x))) == 1)
 ```
 
 como podemos ver no parece haber más valores perdido con los que procedemos a estudiar algunas técnicas de clasificación sobre este dataset. Comenzaremos con los árboles de decisión, en primer lugar lo que haremos es obtener dos particiones de entrenamiento y test. En una primera aproximación vamos a realizar simplemente un submuestreo aleatorio sin más; luego mejoraremos este procedimiento para ver cómo afecta la calidad de las particiones a los resultados de clasificación que obtengamos:
@@ -458,7 +483,7 @@ dd = diag(tt)
 sum(dd)/nrow(test)*100
 ```
 
-Dado los resultados obtenidos utilizando los m�todos de clasificaci�n vamos a proceder a utilizar **random forest**
+Dado los resultados obtenidos utilizando los m?todos de clasificaci?n vamos a proceder a utilizar **random forest**
 
 
 ```{r}
