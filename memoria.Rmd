@@ -168,7 +168,6 @@ Pero antes vamos a emplear esta información. Y es que debemos pensar que un dat
 
 ```{r}
 avistamientosOslo <- ds[ds$city == "Oslo",c("longitude", "latitude")]
-lastIdx <- nrow(avistamientosMadrid)
 mapa <- base_world + geom_point(data = avistamientosOslo, aes(x = longitude, y = latitude), color = "blue", size=0.5)
 mapa
 ```
@@ -178,6 +177,15 @@ Pasamos ya a eliminar estas dos columnas del dataset que no nos serán útiles e
 ```{r}
 ds <- subset(ds, select = -c(city, continent))
 ```
+
+En relación a estos datos indirectos que podemos obtener a partir de nuestro dataset podemos obtener también un mapa de temperaturas en el que se muentren las temperaturas de los avistamientos. Como veremos más adelante los datos son relativos a una semana de agosto con lo que vamos a mostrar la temperatura referente a todos los avistamientos del dataset en un mismo mapa:
+
+```{r}
+mapa <- base_world + geom_point(data = ds, aes(x = longitude, y = latitude, color = ds$temperature)) + scale_colour_gradient2(low = "darkblue", mid="yellow", high = "red", midpoint = 25)
+mapa
+```
+
+Aquí podemos apreciar por ejemplo con en Argentina las temperaturas son bajas en agosto, y como hay una diferencia de temperatura entre el norte y el sur de Europa.
 
 Por otro lado al explorar el dataset observamos que en el atributo **appearedDayOfWeek** se tomaba el valor *dummy_day*, y al consultar los valores que toma este atributo a lo largo del dataset vimos que no aparecia el lunes cuando el resto de los dias de la semana si que aparecen, con lo cual procedemos a revisar si este valor del atributo se corresponde con el lunes o es simplemente un valor perdido:
 
@@ -284,37 +292,6 @@ conteoSemana
 ```
 
 Podemos observar que una gran parte de los avistamientos se realizan en el fin de semana, concretamente los sábados y viernes. También se producen grandes avistamientos los miércoles y jueves, mientras que el lunes es el día que menos avistamientos se producen. Todo esto tiene sentido, ya que hemos de pensar que los datos que estamos tratando son de un video juego para móviles, por lo tanto la mayor actividad, avistamientos, se realizarán cuando los jugadores dispongan de mayor tiempo libre para jugar, fin de semana.
-
-Dado que contamos con la latitud y longitud de los avistamiento decidimos representarlos en un mapa, pero al pintar únicamente los puntos referentes a avistamientos en Madrid nos encontramos lo siguiente:
-
-```{r}
-world_map <- map_data("world")
-base_world <- ggplot() + coord_fixed() + xlab("") + ylab("") + geom_polygon(data=world_map, aes(x=long, y=lat, group=group), colour="lightsalmon4", fill="burlywood3")
-mapa <- base_world + geom_point(data = ds[ds$nombre == "Tauros",], aes(x = longitude, y = latitude))
-mapa
-```
-
-Hay puntos que no se sitúan en Madrid, otros que sí. Pensamos que podría deberse a un problema con el sistema de coordenadas empleado en el datates y el empleado en el mapa base. Entonces realizamos el siguiente experimento:
-
-```{r}
-minLat <- min(ds[ds$city == "Madrid",]$latitude)
-maxLat <- max(ds[ds$city == "Madrid",]$latitude)
-minLong <- min(ds[ds$city == "Madrid",]$longitude)
-maxLong <- max(ds[ds$city == "Madrid",]$longitude)
-
-#Veamos a qué ciudades pertenecen los avistamientos cuya latitud y longitud están en el rango de los puntos de Madrid
-unique(ds[ds$latitude >= minLat & ds$latitude <= maxLat & ds$longitude >= minLong & ds$longitude <= maxLong,]$city)
-```
-
-Como podemos ver hay avistamientos dentro del mismo rango de latitud y longitud que los puntos en Madrid en ciudades tan dispares como Londres, Berlín, Nueva York o Sydney en Australia. Por tanto consideramos que el problema es que al haber formado el dataset, como comenta el propio creador del mismo, con datos de distintas fuentes, las coordeandas de estos avistamientos provienen de distintos sistemas de coordenadas, produciendo este tipo de inconsistencias. Por tanto estos datos juntos con los referentes a los ids de las celdas S2 de distinto tamaño que se obtienen, según se dice en la página principal del dataset, a partir de ellas son datos erróneos y que no se pueden usar para nuestro estudio. No obstante consideraremos que el atributo referencia a la ciudad del avistamiento sí que puede ser correcto y lo mantendremos para nuestro estudio.
-
-```{r}
-madrid <- ds[ds$city == "Madrid",]
-
-raro <- ds[ds$nombre == "Tauros",]
-unique(raro$city)
-unique(raro$continent)
-```
 
 
 DISTRIBUCIÓN de los tipos en el mapa.
