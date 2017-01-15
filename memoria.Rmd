@@ -181,7 +181,7 @@ ds <- subset(ds, select = -c(city, continent))
 En relación a estos datos indirectos que podemos obtener a partir de nuestro dataset podemos obtener también un mapa de temperaturas en el que se muentren las temperaturas de los avistamientos. Como veremos más adelante los datos son relativos a una semana de agosto con lo que vamos a mostrar la temperatura referente a todos los avistamientos del dataset en un mismo mapa:
 
 ```{r}
-mapa <- base_world + geom_point(data = ds, aes(x = longitude, y = latitude, color = ds$temperature)) + scale_colour_gradient2(low = "darkblue", mid="yellow", high = "red", midpoint = 25)
+mapa <- base_world + geom_point(data = ds, aes(x = longitude, y = latitude, color = ds$temperature)) + scale_colour_gradient2("Temperatura",low = "darkblue", mid="yellow", high = "red", midpoint = 25)
 mapa
 ```
 
@@ -294,7 +294,7 @@ DISTRIBUCIÓN de los tipos en el mapa.
 world_map <- map_data("world")
 base_world <- ggplot() + coord_fixed() + xlab("") + ylab("") + geom_polygon(data=world_map, aes(x=long, y=lat, group=group), colour="lightsalmon4", fill="burlywood3")
 colores <- rev(c("darkorchid", "burlywood3","darkgoldenrod4", "pink", "forestgreen", "darkgray", "brown4", "cyan2", "red", "midnightblue", "yellow", "slateblue4", "yellowgreen", "dodgerblue"))
-escaleta <- scale_colour_manual(name = c("agua", "bicho", "dragon", "electrico", "fantasma", "fuego", "hielo", "lucha", "normal", "planta", "psiquico", "roca", "tierra", "veneno"), values = colores)
+escaleta <- scale_colour_manual("Tipo", values = colores)
 mapa <- base_world + geom_point(data = ds, aes(x = longitude, y = latitude, color = ds$tipo)) + escaleta
 mapa
 ```
@@ -313,7 +313,7 @@ Distribución de los distintos tipos de clima en el mapa
 ```{r}
 world_map <- map_data("world")
 base_world <- ggplot() + coord_fixed() + xlab("") + ylab("") + geom_polygon(data=world_map, aes(x=long, y=lat, group=group), colour="lightsalmon4", fill="burlywood3")
-mapa <- base_world + geom_point(data = ds, aes(x = longitude, y = latitude, colour = ds$weather))
+mapa <- base_world + geom_point(data = ds, aes(x = longitude, y = latitude, colour = ds$weather)) + labs(colour = "Tiempo")
 mapa
 ```
 
@@ -325,12 +325,15 @@ datos <- ds[, c("windBearing", "windSpeed", "tipo")]
 datos$windBearing <- datos$windBearing*pi/180.0
 
 colores <- rev(c("darkorchid", "burlywood3","darkgoldenrod4", "pink", "forestgreen", "darkgray", "brown4", "cyan2", "red", "midnightblue", "yellow", "slateblue4", "yellowgreen", "dodgerblue"))
-escaleta <- scale_colour_manual(name = c("agua", "bicho", "dragon", "electrico", "fantasma", "fuego", "hielo", "lucha", "normal", "planta", "psiquico", "roca", "tierra", "veneno"), values = colores)
+escala <- scale_colour_manual("Tipo", values = colores)
 
-circunferencia <- ggplot(datos, aes(datos$windSpeed*cos(datos$windBearing), datos$windSpeed*sin(datos$windBearing))) + geom_point(aes(colour = datos$tipo)) + escaleta
+circunferencia <- ggplot(datos, aes(datos$windSpeed*cos(datos$windBearing), datos$windSpeed*sin(datos$windBearing))) + geom_point(aes(colour = datos$tipo)) + escala
+circunferenciaZoom <- circunferencia + xlim(-20,20) + ylim(-20,20)
 circunferencia
+circunferenciaZoom
 ```
 
+Aunque viendo los tipos uno spor uno podríamos observar alguna tendencía hacia alguno de los cuadrantes de direcciones de viento lo cierto es que no hay una tendencia clara y podemos encontrar observaciones de cualquier tipo en cualquier dirección y las velocidades tampoco alojan mucha información, ya que la densidad de puntos en mayor para velocidades menores pero para cualquier tipo se da la misma tónica. De hecho nos hemos restringido a una área más reducida para apreciar alguna tendencia y no hemos observado nada destacable.
 
 # Clasificación
 
