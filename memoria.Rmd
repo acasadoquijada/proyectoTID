@@ -164,8 +164,16 @@ mapa
 
 Como podemos ver la localización de estas visualizaciones es correcta, por lo tanto consideramos que las descripción del creador del dataset del atributo **city** no es correcta (``the city of a sighting''). Así que o bien este atributo es la ciudad del usuario que vio el pokemon o el uso de proxys (que muchos usuarios emplearon para falisificar su posición y así poder acceder a pokemon de otras localizaciones distintas a la suya real) ha falseado los datos. En cualquiera de los casos esta información no es de utilidad para la predicción que queremos realizar con lo que la eliminaremos, junto con el atributo **continent**.
 
-Pero antes vamos a emplear esta información. Y es que debemos pensar que un dataset no ha de servir únicamente para el problema que se plantea con él. Al tener datos de una aplicación empleada por tantos usuarios internacionalmente el número de datos indirectos que podemos extraer de él es muy grande, y de gran utilidad. En esta ocasión, considerando que el atributo **city** se refiere a la ciudad del usuario y que por tanto la localización de las observaciones se debe a viajes reales realizados por los usuarios, podemos extraer información sobre los desplazamientos realizados por los usuarios de la aplicación. En esta ocasión nos vamos a centrar en ver los viajes realizados por habitantes de Madrid:
+Pero antes vamos a emplear esta información. Y es que debemos pensar que un dataset no ha de servir únicamente para el problema que se plantea con él. Al tener datos de una aplicación empleada por tantos usuarios internacionalmente el número de datos indirectos que podemos extraer de él es muy grande, y de gran utilidad. En esta ocasión, considerando que el atributo **city** se refiere a la ciudad del usuario y que por tanto la localización de las observaciones se debe a viajes reales realizados por los usuarios, podemos extraer información sobre los desplazamientos realizados por los usuarios de la aplicación. En esta ocasión nos vamos a centrar en ver los viajes realizados por habitantes de Oslo:
 
+```{r}
+avistamientosOslo <- ds[ds$city == "Oslo",c("longitude", "latitude")]
+lastIdx <- nrow(avistamientosMadrid)
+mapa <- base_world + geom_point(data = avistamientosOslo, aes(x = longitude, y = latitude), color = "blue", size=0.5)
+mapa
+```
+
+Pasamos ya a eliminar estas dos columnas del dataset que no nos serán útiles en adelante:
 
 ```{r}
 ds <- subset(ds, select = -c(city, continent))
