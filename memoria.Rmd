@@ -233,14 +233,12 @@ Dado que el número de clases es muy grande hemos, aún habiendo agrupado por ti
 
 ```{r}
 
-#reglasGenerales <- apriori(ds[, -c(1, 2, 3, 5, 6, 8, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 29, 182, 183, 184)], parameter = list(support = 0.1, confidence = 0.8, minlen = 2, maxlen = 3, maxtime=300))
+reglasGenerales <- apriori(ds[,-c(1, 2, 3, 5, 6, 8, 11, 12, 13, 14, 16, 17, 18, 19, 20, 25, 178, 179, 180)], parameter = list(support = 0.1, confidence = 0.8, minlen = 2, maxlen = 3, maxtime=300))
 ```
 ```{r}
-#inspect(reglasGenerales)
+inspect(reglasGenerales)
 ```
-```{r}
-#unique(ds[ds$appearedDayOfWeek=="Sunday",]$pokemonId)
-```
+
 
 ```{r}
 ds$appearedTimeOfDay <- factor(ds$appearedTimeOfDay, levels = c("morning", "afternoon", "evening", "night"))
@@ -456,10 +454,9 @@ dsFiltradoClaseNum[dsFiltrado$nombre == "Pinsir"] <- 3
 dsFiltradoClaseNum[dsFiltrado$nombre == "Squirtle"] <- 4
 
 #dsFiltrado$nombre = dsFiltradoClaseNum
-idx = sample(2, 0.7*nrow(dsFiltrado), replace = TRUE, prob = c(0.7, 0.3))
-c(sample(which(dsFiltrado$nombre == "Pinsir"), 1000), sample(which(dsFiltrado$nombre == "Kakuna"), 1000), sample(which(dsFiltrado$nombre == "Meowth"), 1000), sample(which(dsFiltrado$nombre == "Squirtle"), 1000), sample(which(dsFiltrado$nombre == "Exeggcute"), 1000)) -> trainIdx
-train = dsFiltrado[trainIdx,]
-test = dsFiltrado[-trainIdx,]
+idxTrain <- createDataPartition(y = dsFiltrado$nombre, p = 0.8, list = FALSE)
+train <- dsFiltrado[idxTrain,]
+test <- dsFiltrado[-idxTrain,]
 ```
 
 ```{r}
@@ -499,7 +496,7 @@ dd = diag(tt)
 cat("El porcentaje de acierto con un árbol de decisión hecho con rpart es:", sum(dd)/nrow(test)*100)
 ```
 
-Dado los resultados obtenidos utilizando los m?todos de clasificaci?n vamos a proceder a utilizar **random forest**
+Dado los resultados obtenidos utilizando los métodos de clasificación vamos a proceder a utilizar **random forest**
 
 
 ```{r}
@@ -588,6 +585,17 @@ cat("Porcentaje de bien clasificados con knn:", bien_clasificados)
 ```
 
 ```{r}
+set.seed(42)
+idxTrain <- createDataPartition(y = dsFiltrado$nombre, p = 0.8, list = FALSE)
+train <- dsFiltrado[idxTrain,]
+test <- dsFiltrado[-idxTrain,]
+```
+```{r}
+ctrl <- trainControl(method="repeatedcv",repeats = 1)
+knnFit <- train(nombre ~ ., data = train, method = "knn", trControl = ctrl, tuneLength = 20 )
+```
+
+```{r}
 library(e1071)
 
 mknns = tune.knn(dsFiltrado[, -135], dsFiltrado$nombre, k=1:20, tunecontrol = tune.control(sampling = "cross"), cross = 10)
@@ -615,9 +623,13 @@ Aumenta ligeramente aunque no demasiado. No sabemos si esto se debe a emplear un
 
 ```{r}
 library(xgboost)
-trainIndex <- createDataPartition(iris$Species, p = .8, list = FALSE, times = 1)
+trainIndex <- createDataPartition(dsFiltrado$nombre, p = .8, list = FALSE, times = 1)
 idxNombre = which(colnames(dsFiltrado) == "nombre")
-xgb <- xgboost(data = data.matrix(dsFiltrado[trainIndex, -idxNombre]), label = dsFiltradoClaseNum[trainIndex], eta = 0.1, max_depth = 7, nround=25, subsample = 0.5, colsample_bytree = 0.5, seed = 1, eval_metric = "merror", objective = "multi:softmax", num_class = 5, nthread = 3)
+
+training <- dsFiltrado[trainIndex, -idxNombre]
+test <- dsFiltrado[-trainIndex, -idxNombre]
+
+xgb <- xgboost(data = data.matrix(training), label = dsFiltradoClaseNum[trainIndex], eta = 0.1, max_depth = 7, nround=25, subsample = 0.5, colsample_bytree = 0.5, seed = 1, eval_metric = "merror", objective = "multi:softmax", num_class = 5, nthread = 3)
 ```
 
 exeggcute = 0
@@ -627,7 +639,7 @@ metapod = 3
 squirtle = 4
 
 ```{r}
-y_pred <- predict(xgb, data.matrix(dsFiltrado[-trainIndex, -idxNombre]))
+y_pred <- predict(xgb, data.matrix(test))
 sum(dsFiltradoClaseNum[-trainIndex] == y_pred)/nrow(dsFiltrado)*100
 ```
 
