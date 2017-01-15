@@ -255,12 +255,6 @@ barplot(tabla3, legend = levels(ds$appearedTimeOfDay), las = 2, col = c("darkgol
 
 Aquí podemos apreciar que para cualquier tipo de pokemon la mayoría de los avistamientos se producen durante la noche. Creíamos que ibamos a apreciar una tendencia en la que los pokemon de tipo fantasma fuesen los que presentaban este comportamiento de una forma más acusada, sin embargo todos los tipos siguen este patrón de aparición.
 
-```{r}
-unosDatos <- ds[ds$nombre == "Abra" | ds$nombre == "Kadabra",]
-tabla <- table(unosDatos$nombre, unosDatos$population_density)
-plot(unosDatos$population_density, type = "l")
-```
-
 Una de las principales características de Pokemon GO, aplicación de la cual son estos datos, es la posibilidad de encontrar pokemon en cualquier parte, por ejemplo en entornos cercanos al agua. Se espera, como es natural, que la mayoría de pokemon tipo agua se encuentren en zonas cercanas al agua. Esto daría un gran grado de realismo a la aplicación. Vamos a comprobar si esto es cierto con el tipo agua y a su vez con algunos otros. Para ello vamos a realizar una sere de gráficos.
 
 ```{r}
@@ -323,8 +317,22 @@ mapa <- base_world + geom_point(data = ds, aes(x = longitude, y = latitude, colo
 mapa
 ```
 
+Veamos como se distrubuyen los tipos según la dirección e intensidad del viento:
+
+```{r}
+datos <- ds[, c("windBearing", "windSpeed", "tipo")]
+
+datos$windBearing <- datos$windBearing*pi/180.0
+
+colores <- rev(c("darkorchid", "burlywood3","darkgoldenrod4", "pink", "forestgreen", "darkgray", "brown4", "cyan2", "red", "midnightblue", "yellow", "slateblue4", "yellowgreen", "dodgerblue"))
+escaleta <- scale_colour_manual(name = c("agua", "bicho", "dragon", "electrico", "fantasma", "fuego", "hielo", "lucha", "normal", "planta", "psiquico", "roca", "tierra", "veneno"), values = colores)
+
+circunferencia <- ggplot(datos, aes(datos$windSpeed*cos(datos$windBearing), datos$windSpeed*sin(datos$windBearing))) + geom_point(aes(colour = datos$tipo)) + escaleta
+circunferencia
+```
 
 
+# Clasificación
 
 Debido a la gran cantidad de muestras y clases del dataset, hemos decidido quedarnos con 5 clases, 5 pokemon, de aproximadamente 1000 muestras cada una para hacer clasificación TODO explicar por qué nos centramos en un problema de clasificación y no en otro:
 
