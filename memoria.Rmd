@@ -24,7 +24,7 @@ Este dataset contiene datos recogidos de la aplicacion *PokemonGo*, esta aplicac
 * **appearedLocalTime**: momento exacto en el que se encontró el pokemon, con el formato yyyy-mm-ddThh-mm-ss.ms.
 * **X_id**: la ficha del dataset no proporciona información sobre qué representa este dato, de hecho hemos [preguntado en la propia web](https://www.kaggle.com/semioniy/predictemall/discussion/24061#144095) pero no hemos obtenido respuesta. No obstante viendo el dataset no parece ser más que una código identificador de la muestra. 
 * **cellId 90-5850m**: la localización goegráfica del pokemon proyectada en una celda S2.
-* **appearedTimeOfDay**: momento del día en el que apareció el pokemon (night, evening, afternoon, morning).
+  * **appearedTimeOfDay**: momento del día en el que apareció el pokemon (night, evening, afternoon, morning).
 * **appearedHour**: hora local de una observación del pokemon.
 * **appearedMinute**: minuto local de una observación del pokemon.
 * **appearedDayOfWeek**: día de la semana en la que se produjo el avistamiento (Monday, Tuesday, Wednesday, Thursday, Friday, Saturdy, Sunday).
@@ -363,6 +363,7 @@ Eliminamos los atributos **pokemonId** y **class** ya que este atributo es el qu
 
 ```{r}
 dsFiltrado <- subset(dsFiltrado, select = -c(pokemonId, class, tipo))
+#dsFiltrado <- subset(dsFiltrado, select = -c(terrainType))
 ```
 
 Lo que vamos a hacer es buscar variables que tengan al menos dos valores distintos a lo largo del dataset. Las que solo presenten un valor serán eliminadas ya que no aportan ninguna información para la clasificación.
@@ -571,7 +572,7 @@ Pruebas con KNN
 ```{r}
 library(e1071)
 
-mknns = tune.knn(dsFiltrado[, -135], dsFiltrado$nombre, k=1:20, tunecontrol = tune.control(sampling = "cross"), cross = 10)
+mknns = tune.knn(dsFiltrado[, -137], dsFiltrado$nombre, k=1:20, tunecontrol = tune.control(sampling = "cross"), cross = 10)
 ```
 
 Con el código anterior hemos obtenido que el mejor k de entre 1 y 20 para el algoritmo de KNN en nuestro dataset es 9, probemos este parámetro:
