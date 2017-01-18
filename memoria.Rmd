@@ -23,8 +23,8 @@ Este dataset contiene datos recogidos de la aplicacion *PokemonGo*, esta aplicac
 * **longitude**: longitud de la posición donde se ha localizado el pokemon.
 * **appearedLocalTime**: momento exacto en el que se encontró el pokemon, con el formato yyyy-mm-ddThh-mm-ss.ms.
 * **X_id**: la ficha del dataset no proporciona información sobre qué representa este dato, de hecho hemos [preguntado en la propia web](https://www.kaggle.com/semioniy/predictemall/discussion/24061#144095) pero no hemos obtenido respuesta. No obstante viendo el dataset no parece ser más que una código identificador de la muestra. 
-* **cellId 90-5850m**: la localización goegráfica del pokemon proyectada en una celda S2.
-  * **appearedTimeOfDay**: momento del día en el que apareció el pokemon (night, evening, afternoon, morning).
+* **cellId 90-5850m**: la localización goegráfica del pokemon proyectada en una celda S2 de distinto tamaño.
+* **appearedTimeOfDay**: momento del día en el que apareció el pokemon (night, evening, afternoon, morning).
 * **appearedHour**: hora local de una observación del pokemon.
 * **appearedMinute**: minuto local de una observación del pokemon.
 * **appearedDayOfWeek**: día de la semana en la que se produjo el avistamiento (Monday, Tuesday, Wednesday, Thursday, Friday, Saturdy, Sunday).
@@ -32,17 +32,17 @@ Este dataset contiene datos recogidos de la aplicacion *PokemonGo*, esta aplicac
 * **appearedMonth**: mes del avistamiento.
 * **appearedYear**: año del avistamiento.
 * **terrainType**: tipo del terreno donde se avistó el pokemon. Este dato viene dado por un valor número según una [tabla de tipos de terreno](http://glcf.umd.edu/data/lc/).
-* **closeToWater**: si está el pokemon a 100m del agua o no.
-* **city**: ciudad donde se ha visto el pokemon.
-* **continent**: continente donde se ha avistado el pokemon.
+* **closeToWater**: si el avistamiento se produjo a 100m o menos del agua o no.
+* **city**: pese a que en la página del dataset nos dice que se trata de la ciudad donde se produjo el avistamiento más adelante veremos que esto no así y daremos nuestra interpretación a este atributo así como al de **continent**.
 * **weather**: un string indicando el tiempo que hacía en el momento del avistamiento.
 * **temperature**: temperatura en grados Celsius en el momento del avistamiento.
 * **windSpeed**: velocidad del viento en el momento del avistamiento km/h.
 * **windBearing**: dirección del viento entre 0 y 360 grados.
 * **pressure**: presión en el momento del avistamiento en bares.
 * **weatherIcon**: el tiempo atmosférico en el momento del avistamiento clasificado según un sistema de categorías más simple que el empleado en *weather* (fog, clear-night, partly-cloudy-night, partly-cloudy-day, cloudy, clear-day, rain, wind).
-* **sunriseMinutesMidnight**: tiempo de la aparición relativo al amanecer.
-* **sunsetMinutesBefore**: tiempo de la aparición relativo a la puesta de sol.
+* **sunriseHour**, **sunriseMinute**, **sunsentHour** y **sunsetMinute**: hora y minuto local en que amaneció o atardeció.
+* **sunsetMinutesMidnight** y **sunriseMinutesMidnight**: minutos tras las 00:00 en los que amaneció o atardeció.
+* **sunsetMinutesBefore** y **sunriseMinutesSince**: según la página del dataset es los minutos del avistamiento relativos al amanecer y al atardecer.
 * **population density**: densidad de población por $km^2$ en un avistamiento.
 * **urbal-rural**: cómo de urbana es la localización donde apareció el pokemon relativa a la *population density* (<200 rural, >= 200 && < 400 midUrban, >= 400 && < 800 subUrban, >800 urban).
 * **gymDistanceKm**: distancia al gimnasio más cercano al punto de aparición del pokemon.
