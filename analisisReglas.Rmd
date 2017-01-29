@@ -1,0 +1,10 @@
+---
+title: "Untitled"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+reglas <- read.csv("reglasGeneralesConfianza1.csv")
+```
+
+

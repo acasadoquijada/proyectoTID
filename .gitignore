@@ -31,6 +31,8 @@ vignettes/*.pdf
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
+#Tex build files
+build/
 
 # Archivo CSV que contiene el data set
 300k.csv
