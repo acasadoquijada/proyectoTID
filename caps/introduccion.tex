@@ -1,1 +1,62 @@
-En este trabajo vamos a trabajar con un dataset que recoge datos de la aplicación PokemonGo
+En este primer apartado vamos a hablar un poco sobre el dataset que hemos elegido para realizar nuestro trabajo.
+
+Este dataset contiene datos recogidos de la aplicación PokemonGo, esta aplicación es un juego de realidad aumentada que emplea el GPS del móvil para principalmente localizar y capturar pokemon en el mundo real. El dataset contiene 296021 muestras cada una de las cuales dispone de los siguientes campos:
+
+\begin{itemize}
+
+\item \textbf{pokemonId}: el identificador del pokemon, denota su clase.
+
+\item \textbf{latitude}: latitud de la posición donde se ha localizado el pokemon.
+
+\item \textbf{longitude}: longitud de la posición donde se ha localizado el pokemon.
+
+\item \textbf{appearedLocalTime}: momento exacto en el que se encontró el pokemon, con el formato yyyy-mm-ddThh-mm-ss.ms.
+
+\item \textbf{X\_id}: la ficha del dataset no proporciona información sobre qué representa este dato, de hecho hemos \href{https://www.kaggle.com/semioniy/predictemall/discussion/24061#144095}{preguntado en la propia web}) pero no hemos obtenido respuesta. No obstante viendo el dataset no parece ser más que una código identificador de la muestra. 
+
+\item \textbf{cellId\_90-5850m}: la localización goegráfica del pokemon proyectada en una celda S2 de distinto tamaño.
+
+\item \textbf{appearedTimeOfDay}: momento del día en el que apareció el pokemon (night, evening, afternoon, morning).
+
+\item \textbf{appearedHour}: hora local de una observación del pokemon.
+
+\item \textbf{appearedMinute}: minuto local de una observación del pokemon.
+
+\item \textbf{appearedDayOfWeek}: día de la semana en la que se produjo el avistamiento (Monday, Tuesday, Wednesday, Thursday, Friday, Saturdy, Sunday).
+ 
+\item \textbf{appearedDay}: día del avistamiento.
+
+\item \textbf{appearedMonth}: mes del avistamiento.
+
+\item \textbf{appearedYear}: año del avistamiento.
+
+\item \textbf{terrainType}: tipo del terreno donde se avistó el pokemon. Este dato viene dado por un valor número según una \href{http://glcf.umd.edu/data/lc}{tabla de tipos de terreno}
+
+\item \textbf{closeToWater}: si el avistamiento se produjo a 100m o menos del agua o no.
+
+\item \textbf{city}: pese a que en la página del dataset nos dice que se trata de la ciudad donde se produjo el avistamiento más adelante veremos que esto no así y daremos nuestra interpretación a este atributo así como al de continent.
+ 
+\item \textbf{weather}: un string indicando el tiempo que hacía en el momento del avistamiento.
+ 
+\item \textbf{temperatureç: temperatura en grados Celsius en el momento del avistamiento.
+
+\item \textbf{windSpeed}: velocidad del viento en el momento del avistamiento km/h.
+
+\item \textbf{windBearing}: dirección del viento entre 0 y 360 grados.
+
+\item \textbf{pressure}: presión en el momento del avistamiento en bares.
+
+\item \textbf{weatherIcon}: el tiempo atmosférico en el momento del avistamiento clasificado según un sistema de categorías más simple que el empleado en weather (fog, clear-night, partly-cloudy-night, partly-cloudy-day, cloudy, clear-day, rain, wind).
+
+\item \textbf{sunriseHour, sunriseMinute, sunsentHour y sunsetMinute}: hora y minuto local en que amaneció o atardeció.
+
+\item \textbf{sunsetMinutesMidnight,sunriseMinutesMidnight}: minutos tras las 00:00 en los que amaneció o atardeció.
+
+\item \textbf{sunsetMinutesBefore,sunriseMinutesSince}: según la página del dataset es los minutos del avistamiento relativos al amanecer y al atardecer.
+ 
+\item \textbf{population_density}: densidad de población por km^2 en un avistamiento.
+
+\item \textbf{urbal-rural}: cómo de urbana es la localización donde apareció el pokemon relativa a la population density
+
+
+\end{itemize}
