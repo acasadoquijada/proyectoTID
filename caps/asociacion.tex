@@ -1,0 +1,7 @@
+Pasamos ahora a ver qué resultados hemos obtenido a partir de las reglas de asociación encontradas sobre el dataset completo. A fin de poder obtener reglas con un tiempo de ejecución abordable optamos por buscar reglas de hasta tamaño 3 y con una confianza de 0.8.\\
+
+Además dado que pretendíamos encontrar reglas que nos dijesen algo acerca del tipo o la especie del pokemon pasamos las reglas obtenidas a una tabla de modo que pudiésemos hacer búsquedas en esta tabla del tipo ``extrae reglas que en su consecuente tengan una igualdad implicando al tipo del pokemon y que en el antecedente no aparezca el nombre del pokemon''.\\
+
+Aunque las reglas obtenidas tenían un lift igual o superior a uno no hemos encontrado ninguna regla que sea de interés. La única que cabría señalar sería que con un 0.8 de confianza podemos decir que los tipo bicho y normal no aparecen cerca del agua.\\
+
+Por lo tanto, al igual que sucedía en clasificación, los resultados obtenidos sobre nuestro dataset no son de calidad.
